@@ -1,0 +1,6 @@
+{
+  "name": "Japanese Executive Study Tour 2026",
+  "description": "Executive Study Tour portal for Mongolian business leaders exploring world-class Japanese management, Kaizen technology, and B2B partnerships in Osaka, Kyoto, and Tokyo.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
