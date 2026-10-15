@@ -166,8 +166,8 @@ END:VEVENT
         </button>
       </div>
 
-      {/* City Tabs */}
-      <div className="border-b border-[#d3dae4] flex items-center gap-6 sm:gap-8 overflow-x-auto">
+      {/* City Tabs - Centered */}
+      <div className="border-b border-[#d3dae4] flex items-center justify-center gap-6 sm:gap-8 overflow-x-auto">
         <button
           onClick={() => setActiveCityTab('all')}
           className={`flex flex-col items-center pb-3 pt-3 text-sm font-bold border-b-[3px] transition-all whitespace-nowrap ${
@@ -200,8 +200,8 @@ END:VEVENT
         </button>
       </div>
 
-      {/* Type Filter Pills */}
-      <div className="flex gap-2 py-4 overflow-x-auto">
+      {/* Type Filter Pills - Centered */}
+      <div className="flex justify-center gap-2 py-4 overflow-x-auto flex-wrap">
         <button
           onClick={() => setSelectedCategory('all')}
           className={`flex h-8 shrink-0 items-center gap-1.5 px-3.5 rounded-lg text-xs font-semibold transition-all ${

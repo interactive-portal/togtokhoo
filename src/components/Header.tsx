@@ -96,86 +96,90 @@ export const Header: React.FC<HeaderProps> = ({ currentTab, onSelectTab }) => {
         </div>
 
         {/* Main Nav Bar */}
-        <div className="h-18 max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between gap-3">
-          {/* Logo & Brand */}
-          <div
-            onClick={() => onSelectTab('nuur')}
-            className="flex items-center gap-2.5 cursor-pointer group shrink-0"
-          >
-            <div className="w-9 h-9 rounded-xl bg-[#002045] flex items-center justify-center text-white font-bold text-lg shadow-sm group-hover:bg-[#1a365d] transition-colors">
-              <span className="material-symbols-outlined text-[20px]">flight_takeoff</span>
-            </div>
-            <div className="flex flex-col">
-              <div className="flex items-center gap-1.5">
-                <span className="font-extrabold text-[#002045] text-base tracking-tight">ЯПОН БИЗНЕС СУРГАЛТ</span>
-                <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#ffdad6] text-[#920212] font-black">2026</span>
+        <div className="h-18 max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between gap-4">
+          {/* Logo & Brand (Left) */}
+          <div className="flex-1 flex justify-start items-center min-w-0">
+            <div
+              onClick={() => onSelectTab('nuur')}
+              className="flex items-center gap-2.5 cursor-pointer group shrink-0"
+            >
+              <div className="w-9 h-9 rounded-xl bg-[#002045] flex items-center justify-center text-white font-bold text-lg shadow-sm group-hover:bg-[#1a365d] transition-colors">
+                <span className="material-symbols-outlined text-[20px]">flight_takeoff</span>
               </div>
-              <span className="text-[11px] text-[#586e8d] truncate">Осака • Киото • Токио</span>
+              <div className="flex flex-col">
+                <div className="flex items-center gap-1.5">
+                  <span className="font-extrabold text-[#002045] text-base tracking-tight">ЯПОН БИЗНЕС СУРГАЛТ</span>
+                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#ffdad6] text-[#920212] font-black">2026</span>
+                </div>
+                <span className="text-[11px] text-[#586e8d] truncate">Осака • Киото • Токио</span>
+              </div>
             </div>
           </div>
 
-          {/* Navigation Items (Desktop) */}
-          <nav className="hidden xl:flex items-center gap-1 p-1 bg-[#eff4ff] rounded-xl border border-[#d3e4fe]/60">
-            {primaryNavItems.map(item => (
-              <button
-                key={item.key}
-                onClick={() => onSelectTab(item.key)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap ${
-                  currentTab === item.key
-                    ? 'bg-[#002045] text-white shadow-sm'
-                    : 'text-[#43474e] hover:text-[#002045] hover:bg-[#e5eeff]'
-                }`}
-              >
-                {item.label}
-              </button>
-            ))}
+          {/* Navigation Items (Desktop) - Perfectly centered in the middle */}
+          <div className="hidden lg:flex items-center justify-center shrink-0">
+            <nav className="flex items-center gap-1 p-1 bg-[#eff4ff] rounded-xl border border-[#d3e4fe]/60 shadow-xs">
+              {primaryNavItems.map(item => (
+                <button
+                  key={item.key}
+                  onClick={() => onSelectTab(item.key)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all whitespace-nowrap ${
+                    currentTab === item.key
+                      ? 'bg-[#002045] text-white shadow-sm'
+                      : 'text-[#43474e] hover:text-[#002045] hover:bg-[#e5eeff]'
+                  }`}
+                >
+                  {item.label}
+                </button>
+              ))}
 
-            {/* More Menu Dropdown */}
-            <div className="relative">
-              <button
-                onClick={() => setIsMoreMenuOpen(!isMoreMenuOpen)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1 ${
-                  secondaryNavItems.some(i => i.key === currentTab)
-                    ? 'bg-[#002045] text-white'
-                    : 'text-[#43474e] hover:text-[#002045] hover:bg-[#e5eeff]'
-                }`}
-              >
-                <span>Бусад</span>
-                <span className="material-symbols-outlined text-[16px]">
-                  {isMoreMenuOpen ? 'arrow_drop_up' : 'arrow_drop_down'}
-                </span>
-              </button>
+              {/* More Menu Dropdown */}
+              <div className="relative">
+                <button
+                  onClick={() => setIsMoreMenuOpen(!isMoreMenuOpen)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1 ${
+                    secondaryNavItems.some(i => i.key === currentTab)
+                      ? 'bg-[#002045] text-white shadow-sm'
+                      : 'text-[#43474e] hover:text-[#002045] hover:bg-[#e5eeff]'
+                  }`}
+                >
+                  <span>Бусад</span>
+                  <span className="material-symbols-outlined text-[16px]">
+                    {isMoreMenuOpen ? 'arrow_drop_up' : 'arrow_drop_down'}
+                  </span>
+                </button>
 
-              {isMoreMenuOpen && (
-                <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-2xl border border-slate-200 py-2 z-50">
-                  {secondaryNavItems.map(item => (
-                    <button
-                      key={item.key}
-                      onClick={() => {
-                        onSelectTab(item.key);
-                        setIsMoreMenuOpen(false);
-                      }}
-                      className={`w-full px-4 py-2.5 text-left text-xs font-bold flex items-center gap-2.5 transition-colors ${
-                        currentTab === item.key
-                          ? 'bg-[#eff4ff] text-[#002045]'
-                          : 'text-slate-700 hover:bg-[#f8f9ff]'
-                      }`}
-                    >
-                      <span className="material-symbols-outlined text-[18px] text-[#b52426]">{item.icon}</span>
-                      <span>{item.label}</span>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          </nav>
+                {isMoreMenuOpen && (
+                  <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-2xl border border-slate-200 py-2 z-50">
+                    {secondaryNavItems.map(item => (
+                      <button
+                        key={item.key}
+                        onClick={() => {
+                          onSelectTab(item.key);
+                          setIsMoreMenuOpen(false);
+                        }}
+                        className={`w-full px-4 py-2.5 text-left text-xs font-bold flex items-center gap-2.5 transition-colors ${
+                          currentTab === item.key
+                            ? 'bg-[#eff4ff] text-[#002045]'
+                            : 'text-slate-700 hover:bg-[#f8f9ff]'
+                        }`}
+                      >
+                        <span className="material-symbols-outlined text-[18px] text-[#b52426]">{item.icon}</span>
+                        <span>{item.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </nav>
+          </div>
 
-          {/* Right Tools: VJW link, notification, lang, profile */}
-          <div className="flex items-center gap-2 shrink-0">
+          {/* Right Tools: VJW link, notification, lang, profile (Right) */}
+          <div className="flex-1 flex justify-end items-center gap-2 min-w-0">
             {/* Quick Digital Declaration Pill */}
             <button
               onClick={() => onSelectTab('deklarats')}
-              className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#ffdad6]/60 border border-[#ffdad6] text-[#920212] hover:bg-[#ffdad6] text-xs font-bold transition-all"
+              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#ffdad6]/60 border border-[#ffdad6] text-[#920212] hover:bg-[#ffdad6] text-xs font-bold transition-all shrink-0"
               title="services.digital.go.jp"
             >
               <span className="material-symbols-outlined text-[16px]">qr_code_2</span>
@@ -251,36 +255,38 @@ export const Header: React.FC<HeaderProps> = ({ currentTab, onSelectTab }) => {
           </div>
         </div>
 
-        {/* Sub-bar for all menus on mobile/tablet and secondary menus */}
-        <div className="flex items-center border-t border-[#e5eeff] px-4 py-2 bg-[#f8f9ff] overflow-x-auto gap-2 text-xs font-bold scrollbar-none">
-          {primaryNavItems.map(item => (
-            <button
-              key={item.key}
-              onClick={() => onSelectTab(item.key)}
-              className={`px-3 py-1 rounded-lg shrink-0 transition-colors ${
-                currentTab === item.key
-                  ? 'bg-[#002045] text-white'
-                  : 'text-[#43474e] hover:bg-[#e5eeff]'
-              }`}
-            >
-              {item.label}
-            </button>
-          ))}
-          <span className="w-px h-4 bg-slate-300 shrink-0"></span>
-          {secondaryNavItems.map(item => (
-            <button
-              key={item.key}
-              onClick={() => onSelectTab(item.key)}
-              className={`px-3 py-1 rounded-lg shrink-0 transition-colors flex items-center gap-1 ${
-                currentTab === item.key
-                  ? 'bg-[#002045] text-white'
-                  : 'text-[#43474e] hover:bg-[#e5eeff]'
-              }`}
-            >
-              <span className="material-symbols-outlined text-[14px]">{item.icon}</span>
-              <span>{item.label}</span>
-            </button>
-          ))}
+        {/* Sub-bar for all menus - centered in the middle */}
+        <div className="w-full border-t border-[#e5eeff] bg-[#f8f9ff] overflow-x-auto scrollbar-none">
+          <div className="flex items-center justify-center min-w-max mx-auto px-4 py-2 gap-2 text-xs font-bold">
+            {primaryNavItems.map(item => (
+              <button
+                key={item.key}
+                onClick={() => onSelectTab(item.key)}
+                className={`px-3 py-1.5 rounded-lg shrink-0 transition-all font-semibold ${
+                  currentTab === item.key
+                    ? 'bg-[#002045] text-white shadow-xs'
+                    : 'text-[#43474e] hover:bg-[#e5eeff] hover:text-[#002045]'
+                }`}
+              >
+                {item.label}
+              </button>
+            ))}
+            <span className="w-px h-4 bg-slate-300 shrink-0 mx-0.5"></span>
+            {secondaryNavItems.map(item => (
+              <button
+                key={item.key}
+                onClick={() => onSelectTab(item.key)}
+                className={`px-3 py-1.5 rounded-lg shrink-0 transition-all flex items-center gap-1.5 font-semibold ${
+                  currentTab === item.key
+                    ? 'bg-[#002045] text-white shadow-xs'
+                    : 'text-[#43474e] hover:bg-[#e5eeff] hover:text-[#002045]'
+                }`}
+              >
+                <span className="material-symbols-outlined text-[15px]">{item.icon}</span>
+                <span>{item.label}</span>
+              </button>
+            ))}
+          </div>
         </div>
       </header>
 
