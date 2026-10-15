@@ -1,48 +1,32 @@
-import React, { useState, useEffect } from 'react';
-import { CHECKLIST_ITEMS, PROHIBITIONS, ETIQUETTE_RULES, JAPANESE_PHRASES } from '../data/rulesAndEtiquette';
+import React, { useState } from 'react';
 import { PageTab } from '../components/Header';
 
 interface HomePageProps {
   onNavigate: (tab: PageTab) => void;
-  onOpenHandout: (title: string) => void;
+  onOpenHandout?: (title: string) => void;
 }
 
 export const HomePage: React.FC<HomePageProps> = ({ onNavigate, onOpenHandout }) => {
+  // Hero Carousel slide
   const [currentSlide, setCurrentSlide] = useState(0);
   const totalSlides = 3;
 
-  // Checklist state stored in localStorage
-  const [checkedItems, setCheckedItems] = useState<Record<string, boolean>>(() => {
-    try {
-      const stored = localStorage.getItem('study_tour_checklist');
-      return stored ? JSON.parse(stored) : {};
-    } catch {
-      return {};
-    }
-  });
+  // Shopping widget city tab
+  const [shoppingCityTab, setShoppingCityTab] = useState<'tokyo' | 'osaka'>('tokyo');
 
   // Audio speech status
   const [playingPhraseId, setPlayingPhraseId] = useState<string | null>(null);
 
-  // Auto-advance hero carousel
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % totalSlides);
-    }, 7000);
-    return () => clearInterval(timer);
-  }, []);
-
-  const toggleCheck = (id: string) => {
-    const updated = { ...checkedItems, [id]: !checkedItems[id] };
-    setCheckedItems(updated);
-    try {
-      localStorage.setItem('study_tour_checklist', JSON.stringify(updated));
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  const checkedCount = Object.values(checkedItems).filter(Boolean).length;
+  // Quick Action Modal state
+  const [quickModal, setQuickModal] = useState<{
+    isOpen: boolean;
+    title: string;
+    content: React.ReactNode;
+  }>({
+    isOpen: false,
+    title: '',
+    content: null
+  });
 
   const playSpeech = (phraseText: string, id: string) => {
     setPlayingPhraseId(id);
@@ -59,656 +43,1222 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate, onOpenHandout })
     }
   };
 
+  const handleOpenQuickModal = (type: 'passport' | 'luggage' | 'esim' | 'weather') => {
+    if (type === 'passport') {
+      setQuickModal({
+        isOpen: true,
+        title: 'Паспорт, виз, баримт бичгийн шалгалт',
+        content: (
+          <div className="space-y-4 text-xs text-slate-700 leading-relaxed">
+            <div className="p-3 bg-amber-50 rounded-xl border border-amber-200">
+              <span className="font-bold text-amber-900 block mb-1">
+                ⚠️ Паспортын хүчинтэй хугацааг заавал шалгана уу:
+              </span>
+              <span>Япон улс руу зорчиход паспортын хүчинтэй хугацаа дор хаяж 6 сарын хүчинтэй байх шаардлагатай.</span>
+            </div>
+            <ul className="list-disc pl-5 space-y-1.5">
+              <li><strong>Гадаад паспорт:</strong> Эх хувь (гэмтэлгүй, сул хуудастай байх).</li>
+              <li><strong>Японы богино хугацааны виз:</strong> Хүчинтэй хугацаа болон олон удаагийн/нэг удаагийн төрлийг шалгах.</li>
+              <li><strong>Цээж зураг:</strong> 4.5 × 3.5 см хэмжээтэй 2 хувь цагаан фонтой зураг авч явах.</li>
+              <li><strong>Visit Japan Web:</strong> QR кодоо утас дээрээ Screenshot хийж хадгалах.</li>
+            </ul>
+          </div>
+        )
+      });
+    } else if (type === 'luggage') {
+      setQuickModal({
+        isOpen: true,
+        title: 'Зөөврийн болон бүртгэгдсэн ачааны жин, стандарт',
+        content: (
+          <div className="space-y-4 text-xs text-slate-700 leading-relaxed">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="p-3 bg-blue-50 rounded-xl border border-blue-200">
+                <span className="font-bold text-blue-900 block mb-1">Гар тээш (Cabin Bag):</span>
+                <span>Дээд хязгаар: <strong>10 кг</strong> хүртэл (55 × 40 × 20 см). Нөүтбүүк, цэнэглэгч, эм бэлдмэл гар тээшиндээ авна.</span>
+              </div>
+              <div className="p-3 bg-emerald-50 rounded-xl border border-emerald-200">
+                <span className="font-bold text-emerald-900 block mb-1">Энгийн ачаа (Checked):</span>
+                <span>МИАТ нислэгт: <strong>23 кг × 2 ширхэг</strong> үнэ төлбөргүй зөвшөөрөгдөнө. Powerbank гар тээшинд байх ёстой!</span>
+              </div>
+            </div>
+            <p className="text-slate-500 text-[11px]">
+              * Шингэн зүйлс 100 мл-ээс их бол онгоцны гар тээшинд авч орохыг хатуу хориглоно.
+            </p>
+          </div>
+        )
+      });
+    } else if (type === 'esim') {
+      setQuickModal({
+        isOpen: true,
+        title: 'Travel eSIM урьдчилан бэлдэх заавар',
+        content: (
+          <div className="space-y-4 text-xs text-slate-700 leading-relaxed">
+            <p>
+              Япон улсад буугаад шууд сүлжээнд холбогдохын тулд Улаанбаатараас хөөрөхөөс өмнө <strong>Travel eSIM</strong>-ээ утсандаа суулгаж бэлдэнэ үү.
+            </p>
+            <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-1.5">
+              <div><strong>1. Санал болгох үйлчилгээ:</strong> Airalo (Moshi Moshi), Ubigi, эсвэл Sakura Mobile.</div>
+              <div><strong>2. Суулгах:</strong> QR кодыг уншуулан &quot;Secondary eSIM&quot; нэрээр суулгана.</div>
+              <div><strong>3. Идэвхжүүлэх:</strong> Японы нисэх онгоцны буудалд газардах үед Data Roaming-ийг асаана.</div>
+            </div>
+          </div>
+        )
+      });
+    } else if (type === 'weather') {
+      setQuickModal({
+        isOpen: true,
+        title: 'Япон дахь цаг агаар ба хувцаслалт (10-р сар)',
+        content: (
+          <div className="space-y-4 text-xs text-slate-700 leading-relaxed">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="p-3 bg-amber-50 rounded-xl border border-amber-200">
+                <span className="font-bold text-[#002045] block">Кансай / Осака:</span>
+                <span className="text-lg font-bold text-amber-900 block my-1">+16°C ... +22°C</span>
+                <span>Налгар нартай, дулаахан өдрүүд. Оройдоо сэрүүснэ.</span>
+              </div>
+              <div className="p-3 bg-sky-50 rounded-xl border border-sky-200">
+                <span className="font-bold text-[#002045] block">Токио:</span>
+                <span className="text-lg font-bold text-sky-900 block my-1">+14°C ... +20°C</span>
+                <span>Бага зэрэг сэрүүн, үүлтэй. Хөнгөн куртка тохиромжтой.</span>
+              </div>
+            </div>
+            <div className="p-2.5 bg-slate-100 rounded-lg text-slate-600">
+              👔 <strong>Хувцаслалтын дүрэм:</strong> Бизнес уулзалт, үйлдвэрийн танилцуулгад Smart Casual / Business Suit, чөлөөт өдрүүдэд алхахад эвтэйхэн пүүз, хөнгөн хүрэм сонгоно.
+            </div>
+          </div>
+        )
+      });
+    }
+  };
+
+  // Phrases list
+  const commonPhrases = [
+    {
+      id: 'p1',
+      kanji: 'こんにちは',
+      romaji: 'Konnichiwa',
+      mn: 'Сайн байна уу?'
+    },
+    {
+      id: 'p2',
+      kanji: 'ありがとうございます',
+      romaji: 'Arigatō gozaimasu',
+      mn: 'Баярлалаа.'
+    },
+    {
+      id: 'p3',
+      kanji: 'すみません',
+      romaji: 'Sumimasen',
+      mn: 'Уучлаарай / Өршөөгөөрэй.'
+    },
+    {
+      id: 'p4',
+      kanji: 'お願いします',
+      romaji: 'Onegaishimasu',
+      mn: 'Гуйя / Тусална уу.'
+    },
+    {
+      id: 'p5',
+      kanji: '英語を話せますか?',
+      romaji: 'Eigo o hanasemasu ka?',
+      mn: 'Та англиар ярьдаг уу?'
+    },
+    {
+      id: 'p6',
+      kanji: 'これをください',
+      romaji: 'Kore o kudasai',
+      mn: 'Үүнийг авья.'
+    }
+  ];
+
   return (
-    <div className="flex flex-col w-full">
-      {/* Hero Banner Carousel Section */}
-      <section className="relative w-full bg-[#eff4ff] overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
-          <div className="relative rounded-2xl overflow-hidden bg-white shadow-md border-t-4 border-[#b52426]">
-            {/* Slide 1: Flight Alert */}
-            {currentSlide === 0 && (
-              <div className="grid grid-cols-1 lg:grid-cols-12 min-h-[420px] transition-all duration-500">
-                <div className="lg:col-span-7 p-6 sm:p-10 flex flex-col justify-between">
-                  <div>
-                    <div className="flex flex-wrap items-center gap-2 mb-3">
-                      <span className="px-2.5 py-1 rounded bg-[#ffdad6] text-[#410003] font-bold text-xs tracking-wide uppercase flex items-center gap-1">
-                        <span className="material-symbols-outlined text-[16px]">priority_high</span> АНХААРУУЛГА: НИСЛЭГИЙН ЦАГ
-                      </span>
-                      <span className="px-2.5 py-1 rounded bg-[#e5eeff] text-[#002045] text-xs font-semibold">
-                        МИАТ OM501 • Шууд нислэг
-                      </span>
+    <div className="w-full max-w-[1520px] mx-auto p-3 sm:p-5">
+      {/* 2-Column Responsive Layout: Left Main Column & Right Panel Column */}
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-5">
+        {/* ========================================================= */}
+        {/* CENTER MAIN COLUMN (xl:col-span-8 or 9) */}
+        {/* ========================================================= */}
+        <div className="xl:col-span-8 flex flex-col gap-5">
+          {/* 1. HERO CAROUSEL BANNER */}
+          <div className="relative rounded-2xl overflow-hidden shadow-sm bg-slate-900 min-h-[300px] sm:min-h-[360px] flex items-center group">
+            {/* Background Image: Mount Fuji with Chureito Pagoda */}
+            <img
+              src="https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?q=80&w=1600&auto=format&fit=crop"
+              alt="Mount Fuji and Pagoda"
+              className="absolute inset-0 w-full h-full object-cover opacity-90 transition-transform duration-1000 group-hover:scale-105"
+            />
+            {/* Subtle Gradient Overlays */}
+            <div className="absolute inset-0 bg-gradient-to-r from-[#001738]/90 via-[#001738]/60 to-transparent" />
+
+            {/* Left Info Overlay Box */}
+            <div className="relative z-10 p-5 sm:p-8 max-w-xl text-white">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white border border-white/30 shadow-sm shrink-0">
+                  <span className="material-symbols-outlined text-[22px]">flight_takeoff</span>
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-xs font-semibold tracking-wider text-slate-200 uppercase">
+                    Нисэх өдөр
+                  </span>
+                  <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white tracking-tight">
+                    2026.10.18 (Ня) 13:00
+                  </h1>
+                </div>
+              </div>
+
+              {/* Red Alert Pill */}
+              <div className="mt-4 inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-[#ffdad6] text-[#410003] border border-[#ffb4ab] text-xs sm:text-sm font-bold shadow-sm">
+                <span className="material-symbols-outlined text-[18px] text-[#b52426]">warning</span>
+                <span>Нислэгээс 2-3 цагийн өмнө нисэх буудалд ирсэн байх.</span>
+              </div>
+
+              {/* Airport Subtitle */}
+              <div className="mt-4 flex items-center gap-2 text-xs sm:text-sm text-slate-200 font-medium">
+                <span className="material-symbols-outlined text-[18px] text-amber-300">location_on</span>
+                <span>Чингис хаан олон улсын нисэх буудал (UBN)</span>
+              </div>
+            </div>
+
+            {/* Carousel Navigation Arrows */}
+            <button
+              onClick={() => setCurrentSlide((prev) => (prev === 0 ? totalSlides - 1 : prev - 1))}
+              className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/40 hover:bg-black/60 text-white backdrop-blur-sm flex items-center justify-center transition-colors z-20"
+              aria-label="Өмнөх"
+            >
+              <span className="material-symbols-outlined text-[20px]">chevron_left</span>
+            </button>
+            <button
+              onClick={() => setCurrentSlide((prev) => (prev + 1) % totalSlides)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/40 hover:bg-black/60 text-white backdrop-blur-sm flex items-center justify-center transition-colors z-20"
+              aria-label="Дараах"
+            >
+              <span className="material-symbols-outlined text-[20px]">chevron_right</span>
+            </button>
+
+            {/* Pagination Dots */}
+            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 z-20">
+              {[0, 1, 2, 3].map((dot) => (
+                <button
+                  key={dot}
+                  onClick={() => setCurrentSlide(dot % totalSlides)}
+                  className={`h-2 rounded-full transition-all ${
+                    currentSlide === dot ? 'w-6 bg-white' : 'w-2 bg-white/40 hover:bg-white/70'
+                  }`}
+                  aria-label={`Slide ${dot + 1}`}
+                />
+              ))}
+            </div>
+          </div>
+
+          {/* 2. FOUR QUICK ACTION CARDS */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+            {/* Card 1: Passports */}
+            <div
+              onClick={() => handleOpenQuickModal('passport')}
+              className="group relative rounded-2xl overflow-hidden aspect-[16/10] bg-slate-900 cursor-pointer shadow-sm hover:shadow-md transition-all border border-[#e5eeff]"
+            >
+              <img
+                src="https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?q=80&w=500&auto=format&fit=crop"
+                alt="Passport & Visa"
+                className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-80"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent flex items-end p-3">
+                <span className="text-white text-[11px] sm:text-xs font-bold leading-snug flex items-center gap-1">
+                  <span>Паспорт, виз, баримт бичгээ шалгаарай</span>
+                  <span className="text-slate-300 text-[10px]">&gt;</span>
+                </span>
+              </div>
+            </div>
+
+            {/* Card 2: Luggage Weight */}
+            <div
+              onClick={() => handleOpenQuickModal('luggage')}
+              className="group relative rounded-2xl overflow-hidden aspect-[16/10] bg-slate-900 cursor-pointer shadow-sm hover:shadow-md transition-all border border-[#e5eeff]"
+            >
+              <img
+                src="https://images.unsplash.com/photo-1565026057447-bc90a3dceb87?q=80&w=500&auto=format&fit=crop"
+                alt="Suitcase Luggage"
+                className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-80"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent flex items-end p-3">
+                <span className="text-white text-[11px] sm:text-xs font-bold leading-snug flex items-center gap-1">
+                  <span>Зөөврийн цүнхний жинг шалгаарай</span>
+                  <span className="text-slate-300 text-[10px]">&gt;</span>
+                </span>
+              </div>
+            </div>
+
+            {/* Card 3: Travel eSIM */}
+            <div
+              onClick={() => handleOpenQuickModal('esim')}
+              className="group relative rounded-2xl overflow-hidden aspect-[16/10] bg-slate-900 cursor-pointer shadow-sm hover:shadow-md transition-all border border-[#e5eeff]"
+            >
+              <img
+                src="https://images.unsplash.com/photo-1512499617640-c74ae3a79d37?q=80&w=500&auto=format&fit=crop"
+                alt="Travel eSIM"
+                className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-80"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent flex items-end p-3">
+                <span className="text-white text-[11px] sm:text-xs font-bold leading-snug flex items-center gap-1">
+                  <span>Travel eSIM-aa урьдчилан бэлдээрэй</span>
+                  <span className="text-slate-300 text-[10px]">&gt;</span>
+                </span>
+              </div>
+            </div>
+
+            {/* Card 4: Weather & Clothing */}
+            <div
+              onClick={() => handleOpenQuickModal('weather')}
+              className="group relative rounded-2xl overflow-hidden aspect-[16/10] bg-slate-900 cursor-pointer shadow-sm hover:shadow-md transition-all border border-[#e5eeff]"
+            >
+              <img
+                src="https://images.unsplash.com/photo-1503899036084-c55cdd92da26?q=80&w=500&auto=format&fit=crop"
+                alt="Tokyo Tower Weather"
+                className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-80"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent flex items-end p-3">
+                <span className="text-white text-[11px] sm:text-xs font-bold leading-snug flex items-center gap-1">
+                  <span>Япон дахь цаг агаар, хувцаслалт</span>
+                  <span className="text-slate-300 text-[10px]">&gt;</span>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* 3. ROW: Авч явах зүйлс (Left) & Хориглох зүйлс (Right) */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            {/* Авч явах зүйлс */}
+            <div className="bg-white rounded-2xl border border-[#e5eeff] p-4 sm:p-5 shadow-xs flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-100">
+                  <div className="flex items-center gap-2">
+                    <span className="w-7 h-7 rounded-lg bg-red-50 text-[#b52426] flex items-center justify-center">
+                      <span className="material-symbols-outlined text-[18px]">backpack</span>
+                    </span>
+                    <h2 className="text-sm sm:text-base font-extrabold text-[#002045]">
+                      Авч явах зүйлс
+                    </h2>
+                  </div>
+                  <button
+                    onClick={() => handleOpenQuickModal('passport')}
+                    className="text-xs text-[#1967d2] font-bold hover:underline flex items-center gap-0.5"
+                  >
+                    <span>Дэлгэрэнгүй</span>
+                    <span className="text-[10px]">&gt;</span>
+                  </button>
+                </div>
+
+                {/* Grid of 6 packing items */}
+                <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 sm:gap-3 text-center">
+                  {/* Item 1: Photos */}
+                  <div className="flex flex-col items-center p-2 rounded-xl bg-[#f8faff] border border-[#e9ecf4] hover:bg-[#eff4ff] transition-colors">
+                    <div className="w-12 h-12 rounded-lg bg-white shadow-xs p-1 flex items-center justify-center mb-1.5 overflow-hidden">
+                      <div className="grid grid-cols-2 gap-0.5 w-full h-full">
+                        <div className="bg-slate-200 rounded-xs"></div>
+                        <div className="bg-slate-300 rounded-xs"></div>
+                        <div className="bg-slate-300 rounded-xs"></div>
+                        <div className="bg-slate-200 rounded-xs"></div>
+                      </div>
                     </div>
-                    <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#002045] tracking-tight mb-2">
-                      Улаанбаатар (UBN) → Кансай, Осака (KIX)
-                    </h1>
-                    <p className="text-sm text-[#43474e] mb-5 max-w-xl leading-relaxed">
-                      Нисэх өдөр: <strong className="text-[#002045] font-bold">2026 оны 10-р сарын 18 (Ням), 13:00 цаг</strong>. 
-                      Нислэгээс 2.5 цагийн өмнө буюу хамгийн оройтоход <span className="text-[#b52426] font-bold underline decoration-[#b52426] decoration-2 underline-offset-4">10:30 цагт</span> Чингис Хаан ОУНБ-ын 2-р давхар, олон улсын бүртгэлийн B танхимд бэлэн ирсэн байх шаардлагатай!
-                    </p>
+                    <span className="text-[10px] font-bold text-slate-800 leading-tight">
+                      Цээж зураг<br />4.5 × 3.5 см 2%
+                    </span>
                   </div>
 
-                  {/* Transit Visual Strip */}
-                  <div className="p-4 rounded-xl bg-[#f8f9ff] border border-[#d3e4fe]/60 mb-5">
-                    <div className="grid grid-cols-3 items-center text-center">
-                      <div className="flex flex-col items-start">
-                        <span className="text-xl sm:text-2xl font-bold text-[#002045]">13:00</span>
-                        <span className="text-xs text-[#43474e] font-semibold">UBN (Чингис Хаан)</span>
-                        <span className="text-[11px] text-[#74777f]">Terminal 1</span>
+                  {/* Item 2: Laptop */}
+                  <div className="flex flex-col items-center p-2 rounded-xl bg-[#f8faff] border border-[#e9ecf4] hover:bg-[#eff4ff] transition-colors">
+                    <div className="w-12 h-12 rounded-lg bg-white shadow-xs p-1 flex items-center justify-center mb-1.5">
+                      <span className="material-symbols-outlined text-[26px] text-slate-700">laptop_mac</span>
+                    </div>
+                    <span className="text-[10px] font-bold text-slate-800 leading-tight">
+                      Нэг даг нэг зөөврийн компьютер
+                    </span>
+                  </div>
+
+                  {/* Item 3: Suitcase */}
+                  <div className="flex flex-col items-center p-2 rounded-xl bg-[#f8faff] border border-[#e9ecf4] hover:bg-[#eff4ff] transition-colors">
+                    <div className="w-12 h-12 rounded-lg bg-white shadow-xs p-1 flex items-center justify-center mb-1.5">
+                      <span className="material-symbols-outlined text-[26px] text-slate-700">luggage</span>
+                    </div>
+                    <span className="text-[10px] font-bold text-slate-800 leading-tight">
+                      Жижиг<br />гар чимодан
+                    </span>
+                  </div>
+
+                  {/* Item 4: Travel eSIM */}
+                  <div className="flex flex-col items-center p-2 rounded-xl bg-[#f8faff] border border-[#e9ecf4] hover:bg-[#eff4ff] transition-colors">
+                    <div className="w-12 h-12 rounded-lg bg-[#002045] text-white shadow-xs p-1 flex flex-col items-center justify-center mb-1.5 font-black text-[10px]">
+                      <span>SIM</span>
+                    </div>
+                    <span className="text-[10px] font-bold text-slate-800 leading-tight">
+                      Travel e-sim
+                    </span>
+                  </div>
+
+                  {/* Item 5: Cash */}
+                  <div className="flex flex-col items-center p-2 rounded-xl bg-[#f8faff] border border-[#e9ecf4] hover:bg-[#eff4ff] transition-colors">
+                    <div className="w-12 h-12 rounded-lg bg-amber-100 text-amber-800 shadow-xs p-1 flex items-center justify-center mb-1.5">
+                      <span className="material-symbols-outlined text-[24px]">payments</span>
+                    </div>
+                    <span className="text-[10px] font-bold text-slate-800 leading-tight">
+                      Бэлэн мөнгө<br />10,000-20,000¥
+                    </span>
+                  </div>
+
+                  {/* Item 6: Business Cards */}
+                  <div className="flex flex-col items-center p-2 rounded-xl bg-[#f8faff] border border-[#e9ecf4] hover:bg-[#eff4ff] transition-colors">
+                    <div className="w-12 h-12 rounded-lg bg-white shadow-xs p-1 flex items-center justify-center mb-1.5">
+                      <span className="material-symbols-outlined text-[24px] text-slate-700">badge</span>
+                    </div>
+                    <span className="text-[10px] font-bold text-slate-800 leading-tight">
+                      Нэрийн хуудас
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Хориглох зүйлс */}
+            <div className="bg-white rounded-2xl border border-[#e5eeff] p-4 sm:p-5 shadow-xs flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-100">
+                  <div className="flex items-center gap-2">
+                    <span className="w-7 h-7 rounded-lg bg-red-50 text-[#b52426] flex items-center justify-center">
+                      <span className="material-symbols-outlined text-[18px]">block</span>
+                    </span>
+                    <h2 className="text-sm sm:text-base font-extrabold text-[#002045]">
+                      Хориглох зүйлс
+                    </h2>
+                  </div>
+                  <button
+                    onClick={() => onNavigate('khotolbor')}
+                    className="text-xs text-[#1967d2] font-bold hover:underline flex items-center gap-0.5"
+                  >
+                    <span>Дэлгэрэнгүй</span>
+                    <span className="text-[10px]">&gt;</span>
+                  </button>
+                </div>
+
+                {/* 5 Prohibited Items with red circular badges */}
+                <div className="grid grid-cols-5 gap-2 text-center">
+                  {/* Prohibit 1: Meat */}
+                  <div className="flex flex-col items-center">
+                    <div className="w-12 h-12 rounded-full border-2 border-[#e52b2b] p-0.5 flex items-center justify-center relative mb-1.5 bg-red-50/50">
+                      <span className="material-symbols-outlined text-[22px] text-[#e52b2b]">set_meal</span>
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="w-full h-0.5 bg-[#e52b2b] rotate-45"></div>
                       </div>
-                      <div className="flex flex-col items-center justify-center px-2">
-                        <span className="text-xs text-[#b52426] font-bold">4 цаг 20 мин</span>
-                        <div className="w-full flex items-center my-1.5">
-                          <span className="w-2.5 h-2.5 rounded-full bg-[#002045] shrink-0"></span>
-                          <span className="h-0.5 flex-1 bg-[#d3e4fe]"></span>
-                          <span className="material-symbols-outlined text-[#b52426] text-[20px] mx-1">flight</span>
-                          <span className="h-0.5 flex-1 bg-[#d3e4fe]"></span>
-                          <span className="w-2.5 h-2.5 rounded-full bg-[#b52426] shrink-0"></span>
-                        </div>
-                        <span className="text-[11px] text-[#43474e]">Шууд (Non-stop)</span>
+                    </div>
+                    <span className="text-[10px] font-bold text-slate-800 leading-tight">
+                      Мах махан бүтээгдэхүүн
+                    </span>
+                  </div>
+
+                  {/* Prohibit 2: Animal Leather / fur */}
+                  <div className="flex flex-col items-center">
+                    <div className="w-12 h-12 rounded-full border-2 border-[#e52b2b] p-0.5 flex items-center justify-center relative mb-1.5 bg-red-50/50">
+                      <span className="material-symbols-outlined text-[22px] text-[#e52b2b]">pets</span>
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="w-full h-0.5 bg-[#e52b2b] rotate-45"></div>
                       </div>
-                      <div className="flex flex-col items-end">
-                        <span className="text-xl sm:text-2xl font-bold text-[#002045]">18:20</span>
-                        <span className="text-xs text-[#43474e] font-semibold">KIX (Кансай, Осака)</span>
-                        <span className="text-[11px] text-[#74777f]">Terminal 1 / JST</span>
+                    </div>
+                    <span className="text-[10px] font-bold text-slate-800 leading-tight">
+                      Арьсан эдлэл
+                    </span>
+                  </div>
+
+                  {/* Prohibit 3: Excessive Alcohol */}
+                  <div className="flex flex-col items-center">
+                    <div className="w-12 h-12 rounded-full border-2 border-[#e52b2b] p-0.5 flex items-center justify-center relative mb-1.5 bg-red-50/50">
+                      <span className="material-symbols-outlined text-[22px] text-[#e52b2b]">liquor</span>
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="w-full h-0.5 bg-[#e52b2b] rotate-45"></div>
                       </div>
+                    </div>
+                    <span className="text-[10px] font-bold text-slate-800 leading-tight">
+                      Алкогол хэтрүүлэн хэрэглэх
+                    </span>
+                  </div>
+
+                  {/* Prohibit 4: Hotel Misconduct */}
+                  <div className="flex flex-col items-center">
+                    <div className="w-12 h-12 rounded-full border-2 border-[#e52b2b] p-0.5 flex items-center justify-center relative mb-1.5 bg-red-50/50">
+                      <span className="material-symbols-outlined text-[22px] text-[#e52b2b]">bed</span>
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="w-full h-0.5 bg-[#e52b2b] rotate-45"></div>
+                      </div>
+                    </div>
+                    <span className="text-[10px] font-bold text-slate-800 leading-tight">
+                      Байрлаж буй байранд зүй бус үйлдэл
+                    </span>
+                  </div>
+
+                  {/* Prohibit 5: Lateness */}
+                  <div className="flex flex-col items-center">
+                    <div className="w-12 h-12 rounded-full border-2 border-[#e52b2b] p-0.5 flex items-center justify-center relative mb-1.5 bg-red-50/50">
+                      <span className="material-symbols-outlined text-[22px] text-[#e52b2b]">schedule</span>
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <div className="w-full h-0.5 bg-[#e52b2b] rotate-45"></div>
+                      </div>
+                    </div>
+                    <span className="text-[10px] font-bold text-slate-800 leading-tight">
+                      Хичээлээс хоцрох
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 4. ROW: Маргаашийн хөтөлбөр (Left) & Японы соёлын онцлог (Right) */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            {/* Маргаашийн хөтөлбөр */}
+            <div className="bg-white rounded-2xl border border-[#e5eeff] p-4 sm:p-5 shadow-xs flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-100">
+                  <div className="flex items-center gap-2">
+                    <span className="w-7 h-7 rounded-lg bg-blue-50 text-[#1967d2] flex items-center justify-center">
+                      <span className="material-symbols-outlined text-[18px]">calendar_today</span>
+                    </span>
+                    <div>
+                      <h2 className="text-sm sm:text-base font-extrabold text-[#002045]">
+                        Маргаашийн хөтөлбөр
+                      </h2>
+                      <span className="text-[11px] text-slate-500 font-semibold">2026.10.19 (Даваа)</span>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => onNavigate('khotolbor')}
+                    className="text-xs text-[#1967d2] font-bold hover:underline flex items-center gap-0.5"
+                  >
+                    <span>Дэлгэрэнгүй</span>
+                    <span className="text-[10px]">&gt;</span>
+                  </button>
+                </div>
+
+                {/* Timeline Items */}
+                <div className="space-y-3 mb-4">
+                  <div className="flex items-start gap-3 p-2.5 rounded-xl bg-[#f8faff] border border-[#e9ecf4]">
+                    <span className="text-xs font-black text-[#002045] w-24 shrink-0 pt-0.5">
+                      09:00 - 12:00
+                    </span>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-[#1967d2]"></span>
+                        <span className="text-xs font-bold text-slate-900">Orientation</span>
+                      </div>
+                      <span className="text-[11px] text-slate-500 flex items-center gap-1 mt-0.5">
+                        <span className="material-symbols-outlined text-[13px]">location_on</span>
+                        Osaka, сургалтын танхим
+                      </span>
                     </div>
                   </div>
 
-                  <div className="flex flex-wrap items-center gap-4">
-                    <a
-                      href="#packing-checklist"
-                      className="px-5 py-2.5 rounded-xl bg-[#002045] text-white text-sm font-bold hover:bg-[#1a365d] transition-all flex items-center gap-2 shadow-sm"
-                    >
-                      <span className="material-symbols-outlined text-[18px]">checklist</span>
-                      Цүнхний шалгах хуудас үзэх
-                    </a>
-                    <span className="text-xs text-[#b52426] flex items-center gap-1 font-bold">
-                      <span className="material-symbols-outlined text-[16px]">schedule</span> 
-                      Бэлтгэл хангагдах хугацаа: 7 хоног
+                  <div className="flex items-start gap-3 p-2.5 rounded-xl bg-[#f8faff] border border-[#e9ecf4]">
+                    <span className="text-xs font-black text-[#002045] w-24 shrink-0 pt-0.5">
+                      13:30 - 16:30
+                    </span>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-[#1967d2]"></span>
+                        <span className="text-xs font-bold text-slate-900">Хоттой танилцах хөтөлбөр</span>
+                      </div>
+                      <span className="text-[11px] text-slate-500 flex items-center gap-1 mt-0.5">
+                        <span className="material-symbols-outlined text-[13px]">location_on</span>
+                        Osaka хот
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Mini Map Graphic */}
+                <div className="p-3 rounded-xl bg-[#eff4ff] border border-[#d3e4fe] flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-[#002045] text-white flex items-center justify-center shrink-0">
+                      <span className="material-symbols-outlined text-[20px]">pin_drop</span>
+                    </div>
+                    <div>
+                      <span className="font-extrabold text-[#002045] text-xs block">Osaka</span>
+                      <span className="text-[11px] text-slate-600">Osaka, Japan</span>
+                    </div>
+                  </div>
+                  <a
+                    href="https://maps.google.com/?q=Osaka+Station,+Japan"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-white border border-[#d3e4fe] text-[#002045] hover:bg-[#e5eeff] text-xs font-bold transition-all shadow-xs"
+                  >
+                    <span className="material-symbols-outlined text-[15px] text-[#b52426]">map</span>
+                    <span>Google Maps дээр харах</span>
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            {/* Японы соёлын онцлог */}
+            <div className="bg-white rounded-2xl border border-[#e5eeff] p-4 sm:p-5 shadow-xs flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-100">
+                  <div className="flex items-center gap-2">
+                    <span className="w-7 h-7 rounded-lg bg-red-50 text-[#b52426] flex items-center justify-center font-serif font-black text-sm">
+                      ⛩
+                    </span>
+                    <h2 className="text-sm sm:text-base font-extrabold text-[#002045]">
+                      Японы соёлын онцлог
+                    </h2>
+                  </div>
+                  <button
+                    onClick={() => onNavigate('khel')}
+                    className="text-xs text-[#1967d2] font-bold hover:underline flex items-center gap-0.5"
+                  >
+                    <span>Дэлгэрэнгүй</span>
+                    <span className="text-[10px]">&gt;</span>
+                  </button>
+                </div>
+
+                {/* Cultural Photo Cards Grid */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[10px] font-semibold text-slate-700 mb-3">
+                  {/* Card 1 */}
+                  <div className="flex flex-col rounded-xl overflow-hidden bg-slate-50 border border-slate-100">
+                    <img
+                      src="https://images.unsplash.com/photo-1542051841857-5f90071e7989?q=80&w=240&auto=format&fit=crop"
+                      alt="Walking side"
+                      className="h-16 w-full object-cover"
+                    />
+                    <span className="p-1.5 leading-snug">
+                      Осака-д баруун, Токио-д зүүн талаа барина.
+                    </span>
+                  </div>
+
+                  {/* Card 2 */}
+                  <div className="flex flex-col rounded-xl overflow-hidden bg-slate-50 border border-slate-100">
+                    <img
+                      src="https://images.unsplash.com/photo-1538688525198-9b88f6f53126?q=80&w=240&auto=format&fit=crop"
+                      alt="Trash bin"
+                      className="h-16 w-full object-cover"
+                    />
+                    <span className="p-1.5 leading-snug">
+                      Хогийн сав гудамжинд ховор байдаг.
+                    </span>
+                  </div>
+
+                  {/* Card 3 */}
+                  <div className="flex flex-col rounded-xl overflow-hidden bg-slate-50 border border-slate-100">
+                    <img
+                      src="https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?q=80&w=240&auto=format&fit=crop"
+                      alt="Shoes off"
+                      className="h-16 w-full object-cover"
+                    />
+                    <span className="p-1.5 leading-snug">
+                      Зарим газарт гутлаа тайлна.
+                    </span>
+                  </div>
+
+                  {/* Card 4 */}
+                  <div className="flex flex-col rounded-xl overflow-hidden bg-slate-50 border border-slate-100">
+                    <img
+                      src="https://images.unsplash.com/photo-1554672408-730436b60ede?q=80&w=240&auto=format&fit=crop"
+                      alt="No tip"
+                      className="h-16 w-full object-cover"
+                    />
+                    <span className="p-1.5 leading-snug">
+                      Цайны мөнгө (tip) үлдээдэггүй.
+                    </span>
+                  </div>
+
+                  {/* Card 5 */}
+                  <div className="flex flex-col rounded-xl overflow-hidden bg-slate-50 border border-slate-100">
+                    <img
+                      src="https://images.unsplash.com/photo-1507679799987-c73779587ccf?q=80&w=240&auto=format&fit=crop"
+                      alt="Business card"
+                      className="h-16 w-full object-cover"
+                    />
+                    <span className="p-1.5 leading-snug">
+                      Нэрийн хуудсыг 2 гараар өгч, авна.
+                    </span>
+                  </div>
+
+                  {/* Card 6 */}
+                  <div className="flex flex-col rounded-xl overflow-hidden bg-slate-50 border border-slate-100">
+                    <img
+                      src="https://images.unsplash.com/photo-1579871494447-9811cf80d66c?q=80&w=240&auto=format&fit=crop"
+                      alt="Chopsticks"
+                      className="h-16 w-full object-cover"
+                    />
+                    <span className="p-1.5 leading-snug">
+                      Савхыг будаанд босоогоор зоохгүй.
+                    </span>
+                  </div>
+
+                  {/* Card 7 */}
+                  <div className="flex flex-col rounded-xl overflow-hidden bg-slate-50 border border-slate-100">
+                    <img
+                      src="https://images.unsplash.com/photo-1578632767115-351597cf2477?q=80&w=240&auto=format&fit=crop"
+                      alt="Smoking ban"
+                      className="h-16 w-full object-cover"
+                    />
+                    <span className="p-1.5 leading-snug">
+                      Гудамжаар тамхи татахыг хориглодог.
+                    </span>
+                  </div>
+
+                  {/* Card 8 */}
+                  <div className="flex flex-col rounded-xl overflow-hidden bg-slate-50 border border-slate-100">
+                    <img
+                      src="https://images.unsplash.com/photo-1556742049-0a67c5574f73?q=80&w=240&auto=format&fit=crop"
+                      alt="Cash preferred"
+                      className="h-16 w-full object-cover"
+                    />
+                    <span className="p-1.5 leading-snug">
+                      Жижиг кафенд бэлэн мөнгө хэрэглэнэ.
                     </span>
                   </div>
                 </div>
 
-                <div className="lg:col-span-5 relative min-h-[260px] lg:min-h-full">
-                  <div
-                    className="w-full h-full bg-cover bg-center"
-                    style={{
-                      backgroundImage: `url('https://lh3.googleusercontent.com/aida-public/AB6AXuBffih9LwpXegAWwdJDBMqAyfAQv-eN8eDNosMWfnzkC7cCd4X0V3nwu3TmV2OQCaifgQGxph6OyP0MZua8-LBf9FSabaS7B4RPS-Exqcmdj2A819a0LqsLmSVURbvqQ5LzHTG5B2fsoWrqcRGz4oEp45gKy9IWjVckz_-LjP3YdzjgGqmaxRMwo16zjqLMWjQpDdwHXXwctTso1qVif5dTffoU2ZPgmoRjoBdp6pKlqRkgZT13wbYz')`
-                    }}
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#002045]/70 via-transparent to-transparent lg:bg-gradient-to-r lg:from-white/20 lg:via-transparent lg:to-transparent"></div>
-                  <div className="absolute bottom-4 right-4 p-3 rounded-xl bg-white/95 backdrop-blur-md shadow-lg max-w-xs border border-white">
-                    <div className="flex items-center gap-2.5">
-                      <span className="material-symbols-outlined text-[#b52426] text-[24px]">luggage</span>
-                      <div className="flex flex-col">
-                        <span className="text-xs font-bold text-[#002045]">Ачааны лимит:</span>
-                        <span className="text-xs text-[#43474e]">Гар тээш 8кг + Энгийн ачаа 23кг (1ш)</span>
-                      </div>
-                    </div>
+                {/* Additional 2 Etiquette Bullets */}
+                <div className="space-y-1.5 text-[11px] text-slate-700">
+                  <div className="flex items-center gap-2 p-1.5 rounded-lg bg-slate-50 border border-slate-100">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#1967d2] shrink-0"></span>
+                    <span>Галт тэрэг, автобус, дэлгүүрт тэмдэглэсэн дараалалд зогсоно.</span>
+                  </div>
+                  <div className="flex items-center gap-2 p-1.5 rounded-lg bg-slate-50 border border-slate-100">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#1967d2] shrink-0"></span>
+                    <span>Гудамж, дэлгүүрийн орц, явган хүний замыг бүлгээрээ хааж зогсохгүй.</span>
                   </div>
                 </div>
-              </div>
-            )}
-
-            {/* Slide 2: Factory & Enterprise Visits */}
-            {currentSlide === 1 && (
-              <div className="grid grid-cols-1 lg:grid-cols-12 min-h-[420px] transition-all duration-500">
-                <div className="lg:col-span-7 p-6 sm:p-10 flex flex-col justify-between">
-                  <div>
-                    <div className="flex items-center gap-2 mb-3">
-                      <span className="px-2.5 py-1 rounded bg-[#e5eeff] text-[#002045] font-bold text-xs tracking-wide uppercase">
-                        ҮЙЛДВЭРИЙН ЭКСПЕДИЦ
-                      </span>
-                      <span className="px-2.5 py-1 rounded bg-[#d3e4fe] text-[#43474e] text-xs font-semibold">
-                        Осака • Киото • Токио
-                      </span>
-                    </div>
-                    <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#002045] tracking-tight mb-2">
-                      Дэлхийн түвшний менежмент ба Kaizen технологи
-                    </h2>
-                    <p className="text-sm text-[#43474e] mb-5 max-w-xl leading-relaxed">
-                      Японы тэргүүлэх автоматжуулалт, өндөр бүтээмжийн соёлтой газар дээр нь танилцана. Hiro Coffee, үйлдвэрлэлийн кластер, Panasonic Eco Technology төв болон олон улсын B2B уулзалтууд багтсан цогц аялал.
-                    </p>
-                  </div>
-                  <div className="grid grid-cols-3 gap-3 p-4 rounded-xl bg-[#eff4ff] mb-5 border border-[#d3e4fe]">
-                    <div className="flex flex-col">
-                      <span className="text-xl sm:text-2xl font-bold text-[#002045]">12+</span>
-                      <span className="text-xs text-[#586e8d]">Байгууллагын танилцуулга</span>
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-xl sm:text-2xl font-bold text-[#b52426]">6</span>
-                      <span className="text-xs text-[#586e8d]">Мэргэшсэн сургалт</span>
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-xl sm:text-2xl font-bold text-[#002045]">3 Хот</span>
-                      <span className="text-xs text-[#586e8d]">Осака, Киото, Токио</span>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <button
-                      onClick={() => onNavigate('khotolbor')}
-                      className="px-5 py-2.5 rounded-xl bg-[#002045] text-white text-sm font-bold hover:bg-[#1a365d] transition-all flex items-center gap-2 shadow-sm"
-                    >
-                      <span className="material-symbols-outlined text-[18px]">calendar_month</span>
-                      Аяллын хөтөлбөр үзэх
-                    </button>
-                  </div>
-                </div>
-                <div className="lg:col-span-5 relative min-h-[260px] lg:min-h-full">
-                  <div
-                    className="w-full h-full bg-cover bg-center"
-                    style={{
-                      backgroundImage: `url('https://lh3.googleusercontent.com/aida-public/AB6AXuADhXBK9KGA5Pkst6_f7LdOBEBFpM_9bp9P891fBM6owRrf1FGfk-EQ7N-v-M45tWdFJXVoI2RHAiAw1uohkz0bqW6eNEHV9TlOQYxKkTxkgaSsY4-JguIltqqu9OenW__mGWpA5zMMNbZCSQFHn9fkeTwCBcfm1-crfVES4DrvldNAkZAW4K2hjdj1V6WylTxRHagWHMUbpBMYWtChnTnsL34UAr1sNuAzw5MJa0dUBMDd6KzG4iro')`
-                    }}
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#002045]/60 via-transparent to-transparent"></div>
-                </div>
-              </div>
-            )}
-
-            {/* Slide 3: Cultural Etiquette */}
-            {currentSlide === 2 && (
-              <div className="grid grid-cols-1 lg:grid-cols-12 min-h-[420px] transition-all duration-500">
-                <div className="lg:col-span-7 p-6 sm:p-10 flex flex-col justify-between">
-                  <div>
-                    <div className="flex items-center gap-2 mb-3">
-                      <span className="px-2.5 py-1 rounded bg-[#ffdcc3] text-[#2f1500] font-bold text-xs tracking-wide uppercase">
-                        OMOTENASHI • БИЗНЕС СОЁЛ
-                      </span>
-                      <span className="px-2.5 py-1 rounded bg-[#e5eeff] text-[#002045] text-xs font-semibold">
-                        Ёс зүй & Санамж
-                      </span>
-                    </div>
-                    <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-[#002045] tracking-tight mb-2">
-                      Японы бизнесийн харилцааны дүрмийг чанд баримтлах санамж
-                    </h2>
-                    <p className="text-sm text-[#43474e] mb-5 max-w-xl leading-relaxed">
-                      Цаг баримтлах хатуу зарчим (10 минутын өмнө бэлэн байх), нэрийн хуудас хоёр гараар солилцох уламжлал болон нийтийн ёс зүйн хэм хэмжээг төлөөлөгч нэг бүр чанд сахин ажиллана.
-                    </p>
-                  </div>
-                  <div className="p-4 rounded-xl bg-[#eff4ff] mb-5 flex items-center gap-4 border border-[#d3e4fe]">
-                    <div className="w-12 h-12 rounded-xl bg-[#ffdad6] text-[#b52426] flex items-center justify-center shrink-0">
-                      <span className="material-symbols-outlined text-[28px]">handshake</span>
-                    </div>
-                    <div>
-                      <span className="text-sm font-bold text-[#002045] block">Бизнесийн нэр хүнд & Харилцаа</span>
-                      <span className="text-xs text-[#586e8d]">Бид Монгол улсын бизнесийн тэргүүлэх манлайлагчдыг төлөөлж буй тул зохион байгуулалттай, дэг журамтай оролцоно.</span>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <a
-                      href="#etiquette-section"
-                      className="px-5 py-2.5 rounded-xl bg-[#002045] text-white text-sm font-bold hover:bg-[#1a365d] transition-all flex items-center gap-2 shadow-sm"
-                    >
-                      <span className="material-symbols-outlined text-[18px]">verified</span>
-                      Ёс зүйн 10 дүрмийг унших
-                    </a>
-                  </div>
-                </div>
-                <div className="lg:col-span-5 relative min-h-[260px] lg:min-h-full">
-                  <div
-                    className="w-full h-full bg-cover bg-center"
-                    style={{
-                      backgroundImage: `url('https://lh3.googleusercontent.com/aida-public/AB6AXuDAHA8TXq1G9SzKMdPWwDO_YwokymI2NuJpsFZLzsAC1aAXtR4q4b7fx0FAb1nYNbZnwqqptLuI13MNbeI2rznubhRylfclHTRYqj3Jp27GfKnpxNQYDCozr_xDQFyD_0Hok-SjKGR77h_uqacA2RMeZUBuUUJXu6vqTwIEBIlpOIUUjxsTZ79-ZU3Zsi2sYjfXLKRp6jGGupkXixZVND14ls81Zxg_9hpkSv0_CePU1rh4R6qnDmrg')`
-                    }}
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#002045]/60 via-transparent to-transparent"></div>
-                </div>
-              </div>
-            )}
-
-            {/* Carousel Controls */}
-            <div className="px-6 py-3 bg-[#eff4ff] flex items-center justify-between border-t border-[#d3e4fe]/50">
-              <div className="flex items-center gap-2">
-                {[0, 1, 2].map((idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => setCurrentSlide(idx)}
-                    className={`h-2.5 rounded-full transition-all duration-300 ${
-                      currentSlide === idx ? 'w-8 bg-[#002045]' : 'w-2.5 bg-[#c4c6cf] hover:bg-[#002045]/50'
-                    }`}
-                    aria-label={`Слайд ${idx + 1}`}
-                  />
-                ))}
-              </div>
-              <div className="flex items-center gap-1.5">
-                <button
-                  onClick={() => setCurrentSlide((prev) => (prev - 1 + totalSlides) % totalSlides)}
-                  className="p-1.5 rounded-lg hover:bg-white text-[#43474e] hover:text-[#002045] transition-colors"
-                  aria-label="Өмнөх"
-                >
-                  <span className="material-symbols-outlined text-[20px]">arrow_back</span>
-                </button>
-                <button
-                  onClick={() => setCurrentSlide((prev) => (prev + 1) % totalSlides)}
-                  className="p-1.5 rounded-lg hover:bg-white text-[#43474e] hover:text-[#002045] transition-colors"
-                  aria-label="Дараах"
-                >
-                  <span className="material-symbols-outlined text-[20px]">arrow_forward</span>
-                </button>
               </div>
             </div>
           </div>
-        </div>
-      </section>
 
-      {/* Section 1 & 2: Grid Split Layout (Packing Checklist & Strict Prohibitions) */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-12 w-full" id="packing-checklist">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          {/* Section 1: Checklist (7 Cols) */}
-          <div className="lg:col-span-7 flex flex-col">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-              <div>
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="w-2.5 h-2.5 rounded-full bg-[#002045]"></span>
-                  <span className="text-xs uppercase tracking-wider text-[#74777f] font-bold">БЭЛТГЭЛ ХАНГАЛТ</span>
-                  <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-[#d6e3ff] text-[#001b3c]">
-                    {checkedCount} / {CHECKLIST_ITEMS.length} бэлэн
-                  </span>
-                </div>
-                <h2 className="text-2xl sm:text-3xl font-bold text-[#002045] tracking-tight">Авч явах зүйлсийн жагсаалт</h2>
+          {/* 5. ROW: Нийтлэг үгсийн хэрэглээ (Phrases with Audio) */}
+          <div className="bg-white rounded-2xl border border-[#e5eeff] p-4 sm:p-5 shadow-xs">
+            <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-100">
+              <div className="flex items-center gap-2">
+                <span className="w-7 h-7 rounded-lg bg-blue-50 text-[#1967d2] flex items-center justify-center">
+                  <span className="material-symbols-outlined text-[18px]">translate</span>
+                </span>
+                <h2 className="text-sm sm:text-base font-extrabold text-[#002045]">
+                  Нийтлэг үгсийн хэрэглээ
+                </h2>
               </div>
               <button
-                type="button"
-                onClick={() => onOpenHandout('Аяллын_Тээш_Санамж.pdf')}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#e5eeff] hover:bg-[#d6e3ff] text-[#002045] text-xs font-bold transition-colors self-start sm:self-auto"
+                onClick={() => onNavigate('khel')}
+                className="text-xs text-[#1967d2] font-bold hover:underline flex items-center gap-0.5"
               >
-                <span className="material-symbols-outlined text-[18px]">download</span>
-                <span>Татах (PDF Санамж)</span>
+                <span>Дэлгэрэнгүй</span>
+                <span className="text-[10px]">&gt;</span>
               </button>
             </div>
-            <p className="text-sm text-[#43474e] mb-5 leading-relaxed">
-              Аялалд гарахаас өмнө доорх 6 гол зүйлийг бүрэн бэлтгэж шалгана уу. Тэмдэглэгээ дээр дарж хувийн бэлтгэлээ хянаарай.
-            </p>
 
-            {/* Checklist Interactive Cards */}
-            <div className="space-y-3 flex-1">
-              {CHECKLIST_ITEMS.map((item) => {
-                const isChecked = !!checkedItems[item.id];
+            {/* 6 audio phrase cards */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
+              {commonPhrases.map((phrase) => {
+                const isPlaying = playingPhraseId === phrase.id;
                 return (
                   <div
-                    key={item.id}
-                    onClick={() => toggleCheck(item.id)}
-                    className={`p-4 rounded-xl border transition-all cursor-pointer flex items-start justify-between gap-4 ${
-                      isChecked
-                        ? 'bg-[#f0fdf4] border-emerald-300 shadow-sm'
-                        : 'bg-white border-[#e5eeff] hover:border-[#d3e4fe] shadow-sm hover:shadow'
-                    }`}
+                    key={phrase.id}
+                    className="p-3 rounded-xl bg-[#f8faff] border border-[#e2e8f0] flex flex-col justify-between hover:border-[#1967d2] transition-colors"
                   >
-                    <div className="flex items-start gap-3">
-                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
-                        isChecked ? 'bg-emerald-100 text-emerald-800' : 'bg-[#e5eeff] text-[#002045]'
-                      }`}>
-                        <span className="material-symbols-outlined text-[22px]">{item.icon}</span>
-                      </div>
-                      <div className="flex flex-col">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <span className={`text-sm font-bold ${isChecked ? 'text-emerald-950 line-through' : 'text-[#002045]'}`}>
-                            {item.title}
-                          </span>
-                          {item.tag && (
-                            <span className={`px-2 py-0.5 rounded text-[11px] font-bold ${item.tagColor}`}>
-                              {item.tag}
-                            </span>
-                          )}
-                        </div>
-                        <span className="text-xs text-[#586e8d] mt-1 leading-relaxed">
-                          {item.description}
-                        </span>
-                      </div>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        toggleCheck(item.id);
-                      }}
-                      className={`shrink-0 w-8 h-8 rounded-lg flex items-center justify-center transition-all ${
-                        isChecked
-                          ? 'bg-emerald-600 text-white'
-                          : 'bg-[#eff4ff] text-[#74777f] hover:text-[#002045]'
-                      }`}
-                      aria-label="Шалгах"
-                    >
-                      <span className="material-symbols-outlined text-[20px]">
-                        {isChecked ? 'check_box' : 'check_box_outline_blank'}
+                    <div>
+                      <span className="font-extrabold text-slate-900 text-xs block leading-tight">
+                        {phrase.kanji}
                       </span>
+                      <span className="text-[10px] font-bold text-[#b52426] block mt-0.5">
+                        {phrase.romaji}
+                      </span>
+                      <span className="text-[11px] text-slate-600 block mt-1 leading-snug">
+                        {phrase.mn}
+                      </span>
+                    </div>
+
+                    <button
+                      onClick={() => playSpeech(phrase.kanji, phrase.id)}
+                      className={`mt-3 self-center p-1.5 rounded-full transition-all flex items-center justify-center ${
+                        isPlaying
+                          ? 'bg-[#b52426] text-white scale-110 shadow-sm'
+                          : 'bg-white text-slate-500 hover:text-[#002045] hover:bg-slate-100 shadow-xs'
+                      }`}
+                      title="Япон дуудлага сонсох"
+                      aria-label="Сонсох"
+                    >
+                      <span className="material-symbols-outlined text-[16px]">volume_up</span>
                     </button>
                   </div>
                 );
               })}
             </div>
           </div>
+        </div>
 
-          {/* Section 2: Prohibitions & Rules (5 Cols) */}
-          <div className="lg:col-span-5 flex flex-col">
-            <div className="mb-4">
-              <div className="flex items-center gap-2 mb-1">
-                <span className="w-2.5 h-2.5 rounded-full bg-[#b52426]"></span>
-                <span className="text-xs uppercase tracking-wider text-[#b52426] font-bold">ХАТУУ ДҮРЭМ ЖУРАМ</span>
+        {/* ========================================================= */}
+        {/* RIGHT PANEL COLUMN (xl:col-span-4) */}
+        {/* ========================================================= */}
+        <div className="xl:col-span-4 flex flex-col gap-5">
+          {/* 1. Аяллын хөтөлбөр Card */}
+          <div className="bg-white rounded-2xl border border-[#e5eeff] p-4 sm:p-5 shadow-xs">
+            <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-100">
+              <div className="flex items-center gap-2">
+                <span className="w-7 h-7 rounded-lg bg-red-50 text-[#b52426] flex items-center justify-center">
+                  <span className="material-symbols-outlined text-[18px]">assignment</span>
+                </span>
+                <h2 className="text-sm sm:text-base font-extrabold text-[#002045]">
+                  Аяллын хөтөлбөр
+                </h2>
               </div>
-              <h2 className="text-2xl sm:text-3xl font-bold text-[#002045] tracking-tight">Хориглох зүйлс & Хууль</h2>
-              <p className="text-sm text-[#43474e] mt-1">
-                Япон улсын хилийн хорио цээр болон аяллын дотоод журмыг чанд мөрдөнө.
-              </p>
+              <button
+                onClick={() => onNavigate('khotolbor')}
+                className="text-xs text-[#1967d2] font-bold hover:underline flex items-center gap-0.5"
+              >
+                <span>Бүгдийг харах</span>
+                <span className="text-[10px]">&gt;</span>
+              </button>
             </div>
-            
-            <div className="space-y-3 flex-1">
-              {PROHIBITIONS.map((item) => (
-                <div
-                  key={item.id}
-                  className="p-4 rounded-xl bg-white shadow-sm border-l-4 border-[#b52426] border-y border-r border-[#e5eeff] flex items-start gap-3.5"
-                >
-                  <div className="w-9 h-9 rounded-full bg-[#ffdad6] text-[#920212] flex items-center justify-center shrink-0">
-                    <span className="material-symbols-outlined text-[20px]">{item.icon}</span>
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="text-sm font-bold text-[#002045]">{item.title}</span>
-                    <p className="text-xs text-[#586e8d] mt-1 leading-relaxed">
-                      {item.description}
-                    </p>
+
+            {/* Itinerary Timeline List */}
+            <div className="divide-y divide-slate-100 text-xs">
+              {/* Event 1 */}
+              <div className="py-2.5 flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2.5">
+                  <span className="w-7 h-7 rounded-lg bg-teal-50 text-teal-700 flex items-center justify-center text-xs shrink-0">
+                    ✈️
+                  </span>
+                  <div>
+                    <span className="font-extrabold text-slate-800">10.18 (Ня)</span>
+                    <span className="text-slate-600 block text-[11px]">Улаанбаатар -&gt; Осака</span>
                   </div>
                 </div>
-              ))}
-            </div>
-
-            {/* Warning banner */}
-            <div className="mt-4 p-4 rounded-xl bg-[#ffdad6]/60 text-[#410003] flex items-center gap-3 border border-[#ffdad6]">
-              <span className="material-symbols-outlined text-[24px] text-[#b52426] shrink-0">gavel</span>
-              <span className="text-xs leading-relaxed">
-                <strong>Хуулийн анхааруулга:</strong> Японы гаалийн алба бүх тээшийг тусгай нохой болон рентгенээр нэг бүрчлэн шалгадаг тул эрсдэлээс сэргийлнэ үү.
-              </span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Section 3: Upcoming Training / Day 1 Highlight Bento Card */}
-      <section className="w-full bg-[#eff4ff] py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-3 mb-8">
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-[#ffdad6] text-[#410003] tracking-wider uppercase">
-                  ОЙРЫН ХӨТӨЛБӨР
-                </span>
-                <span className="text-xs text-[#74777f] font-semibold">2026.10.19 (Даваа)</span>
               </div>
-              <h2 className="text-2xl sm:text-3xl font-bold text-[#002045] tracking-tight">Эхний өдрийн сургалт ба чиглүүлэг</h2>
+
+              {/* Event 2 */}
+              <div className="py-2.5 flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2.5">
+                  <span className="w-7 h-7 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center text-xs shrink-0">
+                    🏛
+                  </span>
+                  <div>
+                    <span className="font-extrabold text-slate-800">10.19 (Да)</span>
+                    <span className="text-slate-600 block text-[11px]">Orientation</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Event 3: Toshiya Murata */}
+              <div className="py-2.5 flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2.5">
+                  <span className="w-7 h-7 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center text-xs shrink-0">
+                    🏛
+                  </span>
+                  <div>
+                    <span className="font-extrabold text-slate-800">10.20 (Мя)</span>
+                    <span className="text-slate-600 block text-[11px]">Toshiya Murata (mr.)</span>
+                    <a
+                      href="https://facebook.com"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[10px] text-blue-600 font-bold hover:underline"
+                    >
+                      Facebook
+                    </a>
+                  </div>
+                </div>
+                {/* Avatar headshot */}
+                <img
+                  src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=120&auto=format&fit=crop"
+                  alt="Toshiya Murata"
+                  className="w-8 h-8 rounded-full object-cover border border-slate-200 shrink-0"
+                />
+              </div>
+
+              {/* Event 4: Hiro Coffee */}
+              <div className="py-2.5 flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2.5">
+                  <span className="w-7 h-7 rounded-lg bg-amber-50 text-amber-700 flex items-center justify-center text-xs shrink-0">
+                    ☕
+                  </span>
+                  <div>
+                    <span className="font-extrabold text-slate-800">10.20 (Мя)</span>
+                    <span className="text-slate-600 block text-[11px]">Hiro Coffee Co Ltd</span>
+                    <a
+                      href="https://facebook.com"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[10px] text-blue-600 font-bold hover:underline"
+                    >
+                      Facebook
+                    </a>
+                  </div>
+                </div>
+                <div className="w-8 h-8 rounded-full bg-slate-900 text-white flex items-center justify-center font-black text-[9px] shrink-0">
+                  HIRO
+                </div>
+              </div>
+
+              {/* Event 5: Aeru */}
+              <div className="py-2.5 flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2.5">
+                  <span className="w-7 h-7 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center text-xs shrink-0">
+                    🏭
+                  </span>
+                  <div>
+                    <span className="font-extrabold text-slate-800">10.21 (Лх)</span>
+                    <span className="text-slate-600 block text-[11px]">Aeru company</span>
+                    <span className="text-[10px] text-slate-400 block italic leading-tight">
+                      aeru: Bringing Japanese traditions to the next generation
+                    </span>
+                  </div>
+                </div>
+                <div className="w-8 h-8 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 flex items-center justify-center font-black text-[9px] shrink-0">
+                  aeru
+                </div>
+              </div>
+
+              {/* Event 6: Amagasaki */}
+              <div className="py-2.5 flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2.5">
+                  <span className="w-7 h-7 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center text-xs shrink-0">
+                    🏛
+                  </span>
+                  <div>
+                    <span className="font-extrabold text-slate-800">10.22 (Пү)</span>
+                    <span className="text-slate-600 block text-[11px]">
+                      Amagasaki city, Amagasaki Shinkin Bank
+                    </span>
+                  </div>
+                </div>
+                <img
+                  src="https://images.unsplash.com/photo-1542051841857-5f90071e7989?q=80&w=120&auto=format&fit=crop"
+                  alt="Amagasaki"
+                  className="w-8 h-8 rounded-full object-cover border border-slate-200 shrink-0"
+                />
+              </div>
+
+              {/* Event 7: Harukado */}
+              <div className="py-2.5 flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2.5">
+                  <span className="w-7 h-7 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center text-xs shrink-0">
+                    🏭
+                  </span>
+                  <div>
+                    <span className="font-extrabold text-slate-800">10.23 (Ба)</span>
+                    <span className="text-slate-600 block text-[11px]">Harukado Co Ltd</span>
+                    <span className="text-[10px] text-slate-400 block font-sans">晴香堂 株式会社</span>
+                  </div>
+                </div>
+                <div className="w-8 h-8 rounded-full bg-red-50 text-red-700 border border-red-200 flex items-center justify-center font-black text-[8px] shrink-0">
+                  晴香
+                </div>
+              </div>
+
+              {/* Event 8: Tanaka Tec */}
+              <div className="py-2.5 flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2.5">
+                  <span className="w-7 h-7 rounded-lg bg-blue-50 text-blue-700 flex items-center justify-center text-xs shrink-0">
+                    🏭
+                  </span>
+                  <div>
+                    <span className="font-extrabold text-slate-800">10.23 (Ба)</span>
+                    <span className="text-slate-600 block text-[11px]">Tanaka tec Co ltd</span>
+                    <span className="text-[10px] text-slate-400 block font-sans">株式会社タナカテック</span>
+                  </div>
+                </div>
+                <div className="w-8 h-8 rounded-full bg-slate-100 text-slate-800 border border-slate-300 flex items-center justify-center font-black text-[7px] shrink-0">
+                  TANAKA
+                </div>
+              </div>
+
+              {/* Event 9: Free Day */}
+              <div className="py-2.5 flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2.5">
+                  <span className="w-7 h-7 rounded-lg bg-amber-50 text-amber-700 flex items-center justify-center text-xs shrink-0">
+                    🌴
+                  </span>
+                  <div>
+                    <span className="font-extrabold text-slate-800">10.24 (Бя)</span>
+                    <span className="text-slate-600 block text-[11px]">Чөлөөт өдөр</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Event 10: Free Day */}
+              <div className="py-2.5 flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2.5">
+                  <span className="w-7 h-7 rounded-lg bg-amber-50 text-amber-700 flex items-center justify-center text-xs shrink-0">
+                    🌴
+                  </span>
+                  <div>
+                    <span className="font-extrabold text-slate-800">10.25 (Ня)</span>
+                    <span className="text-slate-600 block text-[11px]">Чөлөөт өдөр</span>
+                  </div>
+                </div>
+              </div>
             </div>
+
+            {/* Bottom Full Schedule Button */}
             <button
               onClick={() => onNavigate('khotolbor')}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#002045] text-white text-sm font-bold hover:bg-[#1a365d] transition-all self-start md:self-auto shadow-sm"
+              className="mt-4 w-full py-2.5 rounded-xl bg-[#f0f4fd] hover:bg-[#dce6fa] text-[#1967d2] font-bold text-xs flex items-center justify-center gap-1.5 transition-colors"
             >
-              <span>Бүх өдрийн хөтөлбөр үзэх</span>
-              <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
+              <span>Бүрэн хөтөлбөрийг харах</span>
+              <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
             </button>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-            {/* Day 1 Master Card (8 Cols) */}
-            <div className="lg:col-span-8 bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-[#d3e4fe] flex flex-col justify-between">
-              <div>
-                <div className="flex flex-wrap items-center justify-between gap-2 pb-4 mb-6 bg-[#f8f9ff] p-4 rounded-xl border border-slate-100">
-                  <div className="flex items-center gap-3">
-                    <span className="w-12 h-12 rounded-xl bg-[#002045] text-white flex flex-col items-center justify-center font-bold">
-                      <span className="text-[10px] leading-tight text-[#adc7f7] uppercase">Өдөр</span>
-                      <span className="text-lg leading-none">01</span>
-                    </span>
-                    <div>
-                      <h3 className="text-base sm:text-lg font-bold text-[#002045]">Нээлтийн Orientation & Kaizen Семинар</h3>
-                      <span className="text-xs text-[#586e8d]">Осака хотын Олон улсын сургалтын танхим (4-р давхар)</span>
-                    </div>
-                  </div>
-                  <span className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-[#e5eeff] text-[#002045] text-xs font-bold">
-                    <span className="material-symbols-outlined text-[16px] text-[#b52426]">location_on</span> Төв танхим
-                  </span>
-                </div>
+          {/* 2. Shopping Widget Card */}
+          <div className="bg-white rounded-2xl border border-[#e5eeff] p-4 sm:p-5 shadow-xs">
+            <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-100">
+              <div className="flex items-center gap-2">
+                <span className="w-7 h-7 rounded-lg bg-red-50 text-[#b52426] flex items-center justify-center">
+                  <span className="material-symbols-outlined text-[18px]">shopping_bag</span>
+                </span>
+                <h2 className="text-sm sm:text-base font-extrabold text-[#002045]">
+                  Shopping
+                </h2>
+              </div>
+              <button
+                onClick={() => onNavigate('shopping')}
+                className="text-xs text-[#1967d2] font-bold hover:underline flex items-center gap-0.5"
+              >
+                <span>Бүгдийг харах</span>
+                <span className="text-[10px]">&gt;</span>
+              </button>
+            </div>
 
-                <div className="space-y-4 mb-6">
-                  <div className="flex flex-col sm:flex-row sm:items-start gap-3 sm:gap-4">
-                    <div className="w-28 shrink-0 flex flex-col">
-                      <span className="text-base font-bold text-[#002045]">09:30 - 12:30</span>
-                      <span className="text-xs text-[#b52426] font-semibold">Үдээс өмнө</span>
+            {/* City Tabs */}
+            <div className="grid grid-cols-2 gap-1 p-1 bg-[#f1f5f9] rounded-xl mb-3 text-xs font-bold">
+              <button
+                onClick={() => setShoppingCityTab('tokyo')}
+                className={`py-1.5 rounded-lg transition-all ${
+                  shoppingCityTab === 'tokyo'
+                    ? 'bg-[#1967d2] text-white shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                Токио (6)
+              </button>
+              <button
+                onClick={() => setShoppingCityTab('osaka')}
+                className={`py-1.5 rounded-lg transition-all ${
+                  shoppingCityTab === 'osaka'
+                    ? 'bg-[#1967d2] text-white shadow-xs'
+                    : 'text-slate-600 hover:text-slate-900'
+                }`}
+              >
+                Осака (6)
+              </button>
+            </div>
+
+            {/* Shopping Mall Cards */}
+            <div className="space-y-3">
+              {shoppingCityTab === 'tokyo' ? (
+                <>
+                  {/* Mall 1: Isetan Shinjuku */}
+                  <div className="p-2.5 rounded-xl border border-slate-100 hover:border-slate-300 transition-colors flex items-center gap-3">
+                    <img
+                      src="https://images.unsplash.com/photo-1542051841857-5f90071e7989?q=80&w=160&auto=format&fit=crop"
+                      alt="Isetan Shinjuku"
+                      className="w-14 h-14 rounded-lg object-cover shrink-0"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-extrabold text-slate-900 text-xs truncate">
+                        Isetan Shinjuku
+                      </h3>
+                      <span className="text-[11px] text-slate-500 block truncate">
+                        📍 Shinjuku Station / Shinjuku-sanchome
+                      </span>
+                      <a
+                        href="https://maps.google.com/?q=Isetan+Shinjuku"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[10px] text-[#1967d2] font-bold hover:underline inline-flex items-center gap-0.5 mt-0.5"
+                      >
+                        <span className="material-symbols-outlined text-[13px]">map</span>
+                        <span>Google Maps</span>
+                      </a>
                     </div>
-                    <div className="flex-1 p-3.5 rounded-xl bg-[#f8f9ff] border border-slate-100">
-                      <span className="text-sm font-bold text-[#002045] block">Сэдэв: "Японы менежментийн онцлог ба Kaizen философи"</span>
-                      <p className="text-xs text-[#586e8d] mt-1 leading-relaxed">
-                        Японы эдийн засгийн үсрэнгүй хөгжлийн суурь зарчим, тасралтгүй сайжруулалтын практик хэрэглээ, 5S аргачлал.
-                      </p>
-                      <div className="mt-2 flex items-center gap-2">
-                        <span className="material-symbols-outlined text-[#74777f] text-[16px]">person</span>
-                        <span className="text-xs text-[#002045] font-semibold">Илтгэгч: Проф. Кэнжи Сато (Осака Эдийн Засгийн Их Сургууль)</span>
+                    <span className="text-slate-300 text-xs">&gt;</span>
+                  </div>
+
+                  {/* Mall 2: Shibuya Scramble Square */}
+                  <div className="p-2.5 rounded-xl border border-slate-100 hover:border-slate-300 transition-colors flex items-center gap-3">
+                    <img
+                      src="https://images.unsplash.com/photo-1503899036084-c55cdd92da26?q=80&w=160&auto=format&fit=crop"
+                      alt="Shibuya Scramble Square"
+                      className="w-14 h-14 rounded-lg object-cover shrink-0"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-extrabold text-slate-900 text-xs truncate">
+                        Shibuya Scramble Square
+                      </h3>
+                      <span className="text-[11px] text-slate-500 block truncate">
+                        📍 Shibuya Station
+                      </span>
+                      <div className="flex items-center gap-2 text-[10px] font-bold mt-0.5">
+                        <a
+                          href="https://www.gotokyo.org"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-slate-600 hover:underline"
+                        >
+                          TokyoTourism.org
+                        </a>
+                        <span className="text-slate-300">•</span>
+                        <a
+                          href="https://maps.google.com/?q=Shibuya+Scramble+Square"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-[#1967d2] hover:underline inline-flex items-center gap-0.5"
+                        >
+                          <span className="material-symbols-outlined text-[13px]">map</span>
+                          <span>Google Maps</span>
+                        </a>
                       </div>
                     </div>
+                    <span className="text-slate-300 text-xs">&gt;</span>
                   </div>
 
-                  <div className="flex flex-col sm:flex-row sm:items-start gap-3 sm:gap-4">
-                    <div className="w-28 shrink-0 flex flex-col">
-                      <span className="text-base font-bold text-[#002045]">14:00 - 17:00</span>
-                      <span className="text-xs text-[#74777f] font-semibold">Үдээс хойш</span>
-                    </div>
-                    <div className="flex-1 p-3.5 rounded-xl bg-[#f8f9ff] border border-slate-100">
-                      <span className="text-sm font-bold text-[#002045] block">Багийн кейс дадлага & Үйлдвэрлэлийн бүтээмжийн симуляци</span>
-                      <p className="text-xs text-[#586e8d] mt-1 leading-relaxed">
-                        Бодит бизнесийн кейс дээр багуудаар хуваагдан дүн шинжилгээ хийх, удирдах ажилтнуудын асуудал шийдвэрлэх хандлага.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Location Bar */}
-              <div className="pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                <div className="flex items-center gap-2.5">
-                  <span className="material-symbols-outlined text-[#b52426] text-[22px]">map</span>
-                  <div>
-                    <span className="text-xs font-bold text-[#002045] block">Хаяг: Osaka International Convention Center (Grand Cube)</span>
-                    <span className="text-[11px] text-[#586e8d]">5-3-51 Nakanoshima, Kita-ku, Osaka, 530-0005 Japan</span>
-                  </div>
-                </div>
-                <a
-                  href="https://maps.google.com/?q=Osaka+International+Convention+Center"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-4 py-1.5 rounded-lg bg-[#e5eeff] hover:bg-[#d6e3ff] text-[#002045] text-xs font-bold transition-colors flex items-center gap-1 shrink-0"
-                >
-                  <span>Google Maps нээх</span>
-                  <span className="material-symbols-outlined text-[16px]">open_in_new</span>
-                </a>
-              </div>
-            </div>
-
-            {/* Next Day Teaser & Quick Briefing (4 Cols) */}
-            <div className="lg:col-span-4 flex flex-col justify-between gap-6">
-              <div className="bg-white rounded-2xl p-6 shadow-sm border-t-4 border-[#002045] border-x border-b border-[#d3e4fe]">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-[#e5eeff] text-[#002045] uppercase">
-                    МАРГААШИЙН САНАМЖ
-                  </span>
-                  <span className="text-xs text-[#586e8d]">10.20 (Мягмар)</span>
-                </div>
-                <h3 className="text-base font-bold text-[#002045] mb-2">Hiro Coffee Co., Ltd зочлох уулзалт</h3>
-                <p className="text-xs text-[#586e8d] mb-4 leading-relaxed">
-                  Японы кофе үйлдвэрлэл, ханган нийлүүлэлтийн сүлжээний тэргүүлэгч байгууллагатай танилцах хөтөлбөр.
-                </p>
-                <div className="p-3 rounded-xl bg-[#f8f9ff] mb-4 space-y-1.5 text-xs">
-                  <div className="flex items-center gap-2">
-                    <span className="material-symbols-outlined text-[#b52426] text-[18px]">groups</span>
-                    <span className="font-bold text-[#002045]">Уулзалт: Ноён Тошия Мурата (CEO)</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="material-symbols-outlined text-[#002045] text-[18px]">checkroom</span>
-                    <span className="text-[#586e8d]">Хувцаслалт: Smart Business / Албаны</span>
-                  </div>
-                </div>
-                <span className="text-xs text-[#b52426] font-bold flex items-center gap-1">
-                  <span className="material-symbols-outlined text-[16px]">schedule</span> Буудлаас хөдлөх: 08:30 цагт яг автобусанд сууна
-                </span>
-              </div>
-
-              {/* Map Preview widget */}
-              <div className="bg-white rounded-2xl p-4 shadow-sm border border-[#d3e4fe] flex-1 flex flex-col justify-between">
-                <div className="flex items-center justify-between mb-2 text-xs">
-                  <span className="font-bold text-[#002045]">Байршил харах</span>
-                  <span className="text-slate-400">Nakanoshima, Osaka</span>
-                </div>
-                <div
-                  className="w-full h-36 bg-cover bg-center rounded-xl relative overflow-hidden"
-                  style={{
-                    backgroundImage: `url('https://lh3.googleusercontent.com/aida-public/AB6AXuA5MSfYuDxrJtIJJNKC04f824u16PhVWfrJOtQ24CLG486BtzoqRSfqoARoMRoThHdEQMO_iUGTJNe0uct_9JVS78c_9lauwh0XgU9X6ECPS0UETQjF1vhxL_ZOhIOBBMRLODsTjXXxl6o1QAdhtTOIWVyToRKWNrcoR3GRTigpWkf84M4iKI_UOib9axwHex1Rq7cIXZh0Q4BZkGEkwCNODrkZCribl8YKGf3MQHyFyGrRY9uGFhX7')`
-                  }}
-                >
-                  <div className="absolute inset-0 bg-[#002045]/20 flex items-center justify-center">
-                    <span className="px-3 py-1 rounded-lg bg-white/95 text-xs font-bold text-[#002045] shadow flex items-center gap-1">
-                      <span className="material-symbols-outlined text-[#b52426] text-[16px]">pin_drop</span> Төв танхим
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Section 4: Cultural Etiquette in Japan (10 Essential Rules) */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-14 w-full" id="etiquette-section">
-        <div className="text-center max-w-3xl mx-auto mb-10">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#e5eeff] text-[#002045] text-xs font-bold uppercase mb-2">
-            <span className="material-symbols-outlined text-[16px] text-[#b52426]">temple_buddhist</span>
-            Японы соёл, ёс заншил
-          </div>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-[#002045] tracking-tight mb-2">
-            Бизнес төлөөлөгчдийн мөрдөх 10 дүрэм
-          </h2>
-          <p className="text-sm text-[#586e8d] leading-relaxed">
-            Япон улсад зорчих үед нутгийн соёл уламжлалыг хүндэтгэх, зүй бус үл ойлголцлоос сэргийлэх практик санамжууд.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-          {ETIQUETTE_RULES.map((rule) => (
-            <div
-              key={rule.number}
-              className={`p-5 rounded-2xl bg-white shadow-sm hover:shadow-md transition-all flex flex-col justify-between border ${
-                rule.highlightBorder ? 'border-t-4 border-t-[#b52426] border-[#d3e4fe]' : 'border-[#e5eeff]'
-              }`}
-            >
-              <div>
-                <div className={`w-9 h-9 rounded-xl flex items-center justify-center font-bold mb-3 ${
-                  rule.highlightBorder ? 'bg-[#ffdad6] text-[#410003]' : 'bg-[#eff4ff] text-[#002045]'
-                }`}>
-                  {rule.number}
-                </div>
-                <h3 className="text-sm font-bold text-[#002045] mb-1.5">{rule.title}</h3>
-                <p className="text-xs text-[#586e8d] leading-relaxed">
-                  {rule.description}
-                </p>
-              </div>
-              <span className={`mt-4 pt-2 text-[11px] font-bold flex items-center gap-1 border-t border-slate-100 ${
-                rule.highlightBorder ? 'text-[#b52426]' : 'text-[#74777f]'
-              }`}>
-                <span className="material-symbols-outlined text-[15px]">{rule.badgeIcon}</span>
-                {rule.badgeText}
-              </span>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Section 5: Useful Japanese Phrases (Interactive Audio / Flashcards) */}
-      <section className="w-full bg-[#eff4ff] py-14">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-3 mb-8">
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <span className="px-2 py-0.5 rounded text-[11px] font-bold bg-[#002045] text-white tracking-wider uppercase">
-                  ХЭЛНИЙ ХӨТӨЧ
-                </span>
-                <span className="text-xs text-[#74777f] font-semibold">Өдөр тутмын хэрэгцээ</span>
-              </div>
-              <h2 className="text-2xl sm:text-3xl font-bold text-[#002045] tracking-tight">Нийтлэг хэрэглэгдэх япон үгс</h2>
-              <p className="text-sm text-[#586e8d] mt-1">
-                Товч үгсийг дуудаж сурснаар дэлгүүр, зочид буудал болон уулзалтын үеэр халуун дулаан уур амьсгал бүрдүүлнэ.
-              </p>
-            </div>
-            <div className="flex items-center gap-2 text-xs text-[#586e8d] self-start md:self-auto font-medium">
-              <span className="material-symbols-outlined text-[18px] text-[#002045]">record_voice_over</span>
-              <span>Дуудлага сонсохын тулд карт дээр дарна уу</span>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {JAPANESE_PHRASES.map((phrase) => {
-              const isPlaying = playingPhraseId === phrase.id;
-              return (
-                <div
-                  key={phrase.id}
-                  onClick={() => playSpeech(phrase.japanese, phrase.id)}
-                  className={`p-5 rounded-2xl bg-white shadow-sm hover:shadow-md transition-all flex flex-col justify-between group cursor-pointer border ${
-                    isPlaying ? 'border-[#b52426] ring-2 ring-[#ffdad6]' : 'border-[#e5eeff] hover:border-[#d3e4fe]'
-                  }`}
-                >
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-xs font-bold text-[#b52426] uppercase tracking-wider">{phrase.category}</span>
-                      <button
-                        type="button"
-                        className={`p-2 rounded-full transition-colors ${
-                          isPlaying ? 'bg-[#b52426] text-white' : 'bg-[#eff4ff] text-[#002045] group-hover:bg-[#002045] group-hover:text-white'
-                        }`}
-                        aria-label="Дуудах"
+                  {/* Mall 3: Ginza Shopping District */}
+                  <div className="p-2.5 rounded-xl border border-slate-100 hover:border-slate-300 transition-colors flex items-center gap-3">
+                    <img
+                      src="https://images.unsplash.com/photo-1536098561742-ca998e48cbcc?q=80&w=160&auto=format&fit=crop"
+                      alt="Ginza"
+                      className="w-14 h-14 rounded-lg object-cover shrink-0"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-extrabold text-slate-900 text-xs truncate">
+                        Ginza Shopping District
+                      </h3>
+                      <span className="text-[11px] text-slate-500 block truncate">
+                        📍 Ginza Station
+                      </span>
+                      <a
+                        href="https://maps.google.com/?q=Ginza+Station,+Tokyo"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[10px] text-[#1967d2] font-bold hover:underline inline-flex items-center gap-0.5 mt-0.5"
                       >
-                        <span className="material-symbols-outlined text-[18px]">
-                          {isPlaying ? 'volume_up' : 'play_arrow'}
-                        </span>
-                      </button>
+                        <span className="material-symbols-outlined text-[13px]">map</span>
+                        <span>Google Maps</span>
+                      </a>
                     </div>
-                    <div className="text-2xl font-extrabold text-[#002045] mb-1 font-sans">{phrase.japanese}</div>
-                    <div className="text-xs font-bold text-[#b52426] tracking-wide">{phrase.romaji}</div>
-                    <p className="text-sm font-bold text-[#0b1c30] mt-2.5">{phrase.mongolian}</p>
+                    <span className="text-slate-300 text-xs">&gt;</span>
                   </div>
-                  <div className="pt-3 mt-3 border-t border-slate-100 text-[#74777f] text-xs">
-                    {phrase.usage}
+                </>
+              ) : (
+                <>
+                  {/* Osaka Mall 1: Shinsaibashi-suji */}
+                  <div className="p-2.5 rounded-xl border border-slate-100 hover:border-slate-300 transition-colors flex items-center gap-3">
+                    <img
+                      src="https://images.unsplash.com/photo-1542051841857-5f90071e7989?q=80&w=160&auto=format&fit=crop"
+                      alt="Shinsaibashi"
+                      className="w-14 h-14 rounded-lg object-cover shrink-0"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-extrabold text-slate-900 text-xs truncate">
+                        Shinsaibashi-suji Street
+                      </h3>
+                      <span className="text-[11px] text-slate-500 block truncate">
+                        📍 Shinsaibashi Station
+                      </span>
+                      <a
+                        href="https://maps.google.com/?q=Shinsaibashi-suji+Shopping+Street"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[10px] text-[#1967d2] font-bold hover:underline inline-flex items-center gap-0.5 mt-0.5"
+                      >
+                        <span className="material-symbols-outlined text-[13px]">map</span>
+                        <span>Google Maps</span>
+                      </a>
+                    </div>
+                    <span className="text-slate-300 text-xs">&gt;</span>
                   </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
 
-      {/* Quick Delegations Emergency Help Desk Bar */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-12 w-full">
-        <div className="p-6 sm:p-10 rounded-2xl bg-[#002045] text-white flex flex-col lg:flex-row items-center justify-between gap-6 shadow-xl">
-          <div className="flex items-center gap-4">
-            <div className="w-14 h-14 rounded-2xl bg-[#b52426] text-white flex items-center justify-center shrink-0 shadow">
-              <span className="material-symbols-outlined text-[32px]">support_agent</span>
+                  {/* Osaka Mall 2: Namba Parks */}
+                  <div className="p-2.5 rounded-xl border border-slate-100 hover:border-slate-300 transition-colors flex items-center gap-3">
+                    <img
+                      src="https://images.unsplash.com/photo-1503899036084-c55cdd92da26?q=80&w=160&auto=format&fit=crop"
+                      alt="Namba Parks"
+                      className="w-14 h-14 rounded-lg object-cover shrink-0"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-extrabold text-slate-900 text-xs truncate">
+                        Namba Parks
+                      </h3>
+                      <span className="text-[11px] text-slate-500 block truncate">
+                        📍 Namba Station
+                      </span>
+                      <a
+                        href="https://maps.google.com/?q=Namba+Parks"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[10px] text-[#1967d2] font-bold hover:underline inline-flex items-center gap-0.5 mt-0.5"
+                      >
+                        <span className="material-symbols-outlined text-[13px]">map</span>
+                        <span>Google Maps</span>
+                      </a>
+                    </div>
+                    <span className="text-slate-300 text-xs">&gt;</span>
+                  </div>
+
+                  {/* Osaka Mall 3: Hankyu Umeda */}
+                  <div className="p-2.5 rounded-xl border border-slate-100 hover:border-slate-300 transition-colors flex items-center gap-3">
+                    <img
+                      src="https://images.unsplash.com/photo-1536098561742-ca998e48cbcc?q=80&w=160&auto=format&fit=crop"
+                      alt="Hankyu Umeda"
+                      className="w-14 h-14 rounded-lg object-cover shrink-0"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-extrabold text-slate-900 text-xs truncate">
+                        Hankyu Umeda Main Store
+                      </h3>
+                      <span className="text-[11px] text-slate-500 block truncate">
+                        📍 Osaka-Umeda Station
+                      </span>
+                      <a
+                        href="https://maps.google.com/?q=Hankyu+Umeda+Main+Store"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[10px] text-[#1967d2] font-bold hover:underline inline-flex items-center gap-0.5 mt-0.5"
+                      >
+                        <span className="material-symbols-outlined text-[13px]">map</span>
+                        <span>Google Maps</span>
+                      </a>
+                    </div>
+                    <span className="text-slate-300 text-xs">&gt;</span>
+                  </div>
+                </>
+              )}
             </div>
-            <div>
-              <span className="text-lg sm:text-xl font-bold block">Шуурхай дэмжлэг, холбоо барих хэрэгтэй байна уу?</span>
-              <p className="text-xs sm:text-sm text-[#d3e4fe] max-w-xl mt-1 leading-relaxed">
-                Аяллын туршид Монгол-Япон зохион байгуулах баг, орчуулагч хөтөч, ЭСЯ-ны 24/7 штаб танд туслахад бэлэн байна.
-              </p>
-            </div>
-          </div>
-          <div className="flex flex-wrap items-center gap-3 shrink-0 w-full lg:w-auto">
-            <button
-              onClick={() => onNavigate('kholboo-barikh')}
-              className="flex-1 lg:flex-initial text-center px-5 py-3 rounded-xl bg-white text-[#002045] text-sm font-bold hover:bg-[#eff4ff] transition-colors shadow-sm"
-            >
-              Төлөөлөгчдийн лавлах руу очих
-            </button>
-            <a
-              href="tel:+818049201122"
-              className="flex-1 lg:flex-initial text-center px-5 py-3 rounded-xl bg-[#b52426] text-white text-sm font-bold hover:bg-[#920212] transition-colors shadow-sm flex items-center justify-center gap-2"
-            >
-              <span className="material-symbols-outlined text-[18px]">call</span>
-              <span>+81 80-4920-1122</span>
-            </a>
           </div>
         </div>
-      </section>
+      </div>
+
+      {/* Quick Action Modal Dialog */}
+      {quickModal.isOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4">
+          <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl border border-slate-200">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <h3 className="font-extrabold text-[#002045] text-base">
+                {quickModal.title}
+              </h3>
+              <button
+                onClick={() => setQuickModal({ isOpen: false, title: '', content: null })}
+                className="text-slate-400 hover:text-slate-700"
+              >
+                <span className="material-symbols-outlined text-[20px]">close</span>
+              </button>
+            </div>
+            <div className="py-4">
+              {quickModal.content}
+            </div>
+            <button
+              onClick={() => setQuickModal({ isOpen: false, title: '', content: null })}
+              className="w-full py-2.5 rounded-xl bg-[#002045] text-white font-bold text-xs hover:bg-[#1a365d] transition-colors"
+            >
+              Ойлголоо, хаах
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

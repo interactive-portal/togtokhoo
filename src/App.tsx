@@ -4,7 +4,9 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { Header, PageTab } from './components/Header';
+import { PageTab } from './components/Header';
+import { TopHeader } from './components/TopHeader';
+import { Sidebar } from './components/Sidebar';
 import { Footer } from './components/Footer';
 import { HomePage } from './pages/HomePage';
 import { ItineraryPage } from './pages/ItineraryPage';
@@ -23,6 +25,7 @@ import { ItineraryItem } from './data/itinerary';
 
 export default function App() {
   const [currentTab, setCurrentTab] = useState<PageTab>('nuur');
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isHandoutOpen, setIsHandoutOpen] = useState(false);
   const [handoutTitle, setHandoutTitle] = useState('Orientation_Handout.pdf');
   const [selectedEvent, setSelectedEvent] = useState<ItineraryItem | null>(null);
@@ -57,6 +60,7 @@ export default function App() {
     setCurrentTab(tab);
     window.location.hash = tab;
     window.scrollTo({ top: 0, behavior: 'smooth' });
+    setIsMobileMenuOpen(false);
   };
 
   const handleOpenHandout = (title: string) => {
@@ -66,67 +70,102 @@ export default function App() {
 
   return (
     <div className="min-h-screen flex flex-col bg-[#f8f9ff] text-[#0b1c30]">
-      {/* Header */}
-      <Header
+      {/* Top Header */}
+      <TopHeader
         currentTab={currentTab}
         onSelectTab={handleTabChange}
+        onOpenMobileMenu={() => setIsMobileMenuOpen(true)}
       />
 
-      {/* Main Content View with top offset for fixed header */}
-      <main className="flex-1 pt-28 sm:pt-32 flex flex-col">
-        {currentTab === 'nuur' && (
-          <HomePage
-            onNavigate={handleTabChange}
-            onOpenHandout={handleOpenHandout}
-          />
-        )}
+      {/* Main Body with Left Sidebar + Content Area */}
+      <div className="flex-1 flex w-full">
+        {/* Left Sidebar Navigation */}
+        <Sidebar
+          currentTab={currentTab}
+          onSelectTab={handleTabChange}
+          isMobileOpen={isMobileMenuOpen}
+          onCloseMobile={() => setIsMobileMenuOpen(false)}
+        />
 
-        {currentTab === 'khotolbor' && (
-          <ItineraryPage
-            onOpenHandout={handleOpenHandout}
-            onOpenDetail={(item) => setSelectedEvent(item)}
-          />
-        )}
+        {/* Main Content Container */}
+        <main className="flex-1 min-w-0 flex flex-col bg-[#f8faff]">
+          {/* Breadcrumb banner when not on Home */}
+          {currentTab !== 'nuur' && (
+            <div className="bg-white border-b border-[#e5eeff] px-4 sm:px-6 py-2.5 flex items-center justify-between">
+              <button
+                onClick={() => handleTabChange('nuur')}
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-[#1967d2] hover:underline cursor-pointer"
+              >
+                <span className="material-symbols-outlined text-[16px]">arrow_back</span>
+                <span>Нүүр хуудас руу буцах</span>
+              </button>
+              <div className="flex items-center gap-1.5 text-xs text-slate-500 font-semibold">
+                <span>JAPAN TRIP 2026</span>
+                <span>/</span>
+                <span className="text-[#002045] font-extrabold capitalize">
+                  {currentTab.replace('-', ' ')}
+                </span>
+              </div>
+            </div>
+          )}
 
-        {currentTab === 'bagiin-burtgel' && (
-          <TeamsPage />
-        )}
+          {/* Active Page View */}
+          <div className="flex-1">
+            {currentTab === 'nuur' && (
+              <HomePage
+                onNavigate={handleTabChange}
+                onOpenHandout={handleOpenHandout}
+              />
+            )}
 
-        {currentTab === 'beleg' && (
-          <GiftsPage />
-        )}
+            {currentTab === 'khotolbor' && (
+              <ItineraryPage
+                onOpenHandout={handleOpenHandout}
+                onOpenDetail={(item) => setSelectedEvent(item)}
+              />
+            )}
 
-        {currentTab === 'shopping' && (
-          <ShoppingPage />
-        )}
+            {currentTab === 'bagiin-burtgel' && (
+              <TeamsPage />
+            )}
 
-        {currentTab === 'deklarats' && (
-          <DeclarationPage />
-        )}
+            {currentTab === 'beleg' && (
+              <GiftsPage />
+            )}
 
-        {currentTab === 'teever' && (
-          <TransitPage />
-        )}
+            {currentTab === 'shopping' && (
+              <ShoppingPage />
+            )}
 
-        {currentTab === 'khel' && (
-          <LanguagePage />
-        )}
+            {currentTab === 'deklarats' && (
+              <DeclarationPage />
+            )}
 
-        {currentTab === 'surgaltyn-irts' && (
-          <AttendancePage />
-        )}
+            {currentTab === 'teever' && (
+              <TransitPage />
+            )}
 
-        {currentTab === 'zurgiin-san' && (
-          <GalleryPage />
-        )}
+            {currentTab === 'khel' && (
+              <LanguagePage />
+            )}
 
-        {currentTab === 'kholboo-barikh' && (
-          <DirectoryPage />
-        )}
-      </main>
+            {currentTab === 'surgaltyn-irts' && (
+              <AttendancePage />
+            )}
 
-      {/* Footer */}
-      <Footer onSelectTab={handleTabChange} />
+            {currentTab === 'zurgiin-san' && (
+              <GalleryPage />
+            )}
+
+            {currentTab === 'kholboo-barikh' && (
+              <DirectoryPage />
+            )}
+          </div>
+
+          {/* Footer */}
+          <Footer onSelectTab={handleTabChange} />
+        </main>
+      </div>
 
       {/* Handout PDF Viewer & Download Modal */}
       <HandoutModal
