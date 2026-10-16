@@ -1,0 +1,217 @@
+import React from 'react';
+import { PageTab } from './Header';
+
+interface MobileMenuSheetProps {
+  isOpen: boolean;
+  onClose: () => void;
+  currentTab: PageTab;
+  onSelectTab: (tab: PageTab) => void;
+  onOpenHandout?: (title: string) => void;
+}
+
+export const MobileMenuSheet: React.FC<MobileMenuSheetProps> = ({
+  isOpen,
+  onClose,
+  currentTab,
+  onSelectTab,
+  onOpenHandout
+}) => {
+  if (!isOpen) return null;
+
+  const menuSections: {
+    category: string;
+    items: {
+      key: PageTab;
+      label: string;
+      desc: string;
+      icon: string;
+      badge?: string;
+      badgeColor?: string;
+    }[];
+  }[] = [
+    {
+      category: 'ҮНДСЭН ХЭСЭГ',
+      items: [
+        { key: 'nuur', label: 'Нүүр хуудас', desc: 'Ерөнхий самбар, анхааруулга, цаг агаар', icon: 'home' },
+        { key: 'khotolbor', label: 'Хөтөлбөр', desc: '13 өдрийн дэлгэрэнгүй цагийн хуваарь', icon: 'calendar_month', badge: '13 Өдөр', badgeColor: 'bg-blue-100 text-blue-800' },
+        { key: 'bagiin-burtgel', label: 'Багийн бүртгэл', desc: '5 ажлын хэсэг, кейс сэдвүүд', icon: 'groups', badge: '5 Баг', badgeColor: 'bg-emerald-100 text-emerald-800' },
+        { key: 'kholboo-barikh', label: 'Холбоо барих', desc: 'Төлөөлөгчид, хөтөч, зохион байгуулагчид', icon: 'contacts' }
+      ]
+    },
+    {
+      category: 'ХЭРЭГЛЭГДЭХҮҮН & БЭЛТГЭЛ',
+      items: [
+        { key: 'deklarats', label: 'Деклерац (Visit Japan Web)', desc: 'Гааль, цагаачлалын цахим бүртгэл', icon: 'badge', badge: 'QR Бэлэн', badgeColor: 'bg-emerald-100 text-emerald-800' },
+        { key: 'beleg', label: 'Бэлэг, дурсгал', desc: 'Хүлээн авагчид, төсөв, бүртгэл', icon: 'featured_seasonal_and_gifts' },
+        { key: 'shopping', label: 'Shopping & Дэлгүүрүүд', desc: 'Токио & Осака худалдааны төвүүд', icon: 'shopping_bag', badge: '12 Төв', badgeColor: 'bg-amber-100 text-amber-800' },
+        { key: 'teever', label: 'Тээвэр, чиглэл, байршил', desc: 'Метроны карт, буудал, шинкансэн', icon: 'directions_bus' },
+        { key: 'khel', label: 'Япон хэлний түргэн туслах', desc: 'Нийтлэг үг хэллэг, дуут сонсох', icon: 'translate' },
+        { key: 'surgaltyn-irts', label: 'Сургалтын ирц', desc: 'Сургалт, үйлдвэрийн ирцийн бүртгэл', icon: 'fact_check' },
+        { key: 'zurgiin-san', label: 'Зургийн сан', desc: 'Аяллын онцлох гэрэл зургууд', icon: 'photo_library' }
+      ]
+    }
+  ];
+
+  const handleItemSelect = (key: PageTab) => {
+    onSelectTab(key);
+    onClose();
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 lg:hidden flex flex-col justify-end">
+      {/* Backdrop */}
+      <div
+        onClick={onClose}
+        className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity animate-fade-in"
+      />
+
+      {/* Sheet Modal */}
+      <div className="relative bg-white w-full rounded-t-3xl max-h-[88vh] flex flex-col shadow-2xl z-10 overflow-hidden animate-slide-up">
+        {/* Top Drag Handle Bar */}
+        <div className="pt-3 pb-2 flex flex-col items-center justify-center shrink-0 border-b border-slate-100">
+          <div className="w-12 h-1.5 rounded-full bg-slate-300 mb-2" />
+          <div className="w-full px-5 flex items-center justify-between">
+            <span className="font-extrabold text-[#002045] text-base">
+              Бүх Цэс & Хэрэгслүүд
+            </span>
+            <button
+              onClick={onClose}
+              className="p-1.5 rounded-full bg-slate-100 text-slate-500 hover:text-slate-800 hover:bg-slate-200"
+              aria-label="Хаах"
+            >
+              <span className="material-symbols-outlined text-[20px]">close</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Scrollable Content */}
+        <div className="flex-1 overflow-y-auto px-4 py-3 space-y-4">
+          {/* User Mini Profile Card */}
+          <div className="p-3.5 rounded-2xl bg-gradient-to-r from-[#002045] to-[#1a365d] text-white flex items-center justify-between gap-3 shadow-sm">
+            <div className="flex items-center gap-3">
+              <div
+                className="w-12 h-12 rounded-full bg-cover bg-center border-2 border-white/50 shrink-0 shadow-sm"
+                style={{
+                  backgroundImage: `url("https://lh3.googleusercontent.com/aida-public/AB6AXuAX9PGNzIiYjTRT7EM5Y6GCA3R0aVykcYq-dQJA5GFyLhiDCKRdGuzuVk_GmsOy9bv0tsCl9JKXfJ_2PslM3MglpBahQdH0po2U9hqW47EgmcLdGnVbJ9nVU3W0cAAjvDC1ZH_8LpnR5C_mcRj9_PmGRycg_6eRqQwoCmL7dNZ-JtdbxzwJKBj3a-DNY8PoMFNDMXFcUBfxYR9Yc1Ax7z__OB_wzuURNe7cEySjBX35gPDGbxRTF8zw")`
+                }}
+              />
+              <div>
+                <span className="font-extrabold text-sm block leading-tight">Ц. Тогтохсүрэн</span>
+                <span className="text-[11px] text-[#adc7f7] block">Group-1 • VIP Делегат</span>
+              </div>
+            </div>
+            <div className="flex flex-col items-end gap-1">
+              <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 text-[10px] font-extrabold">
+                VJW QR Бэлэн
+              </span>
+              <span className="text-[10px] text-slate-300">Room #812</span>
+            </div>
+          </div>
+
+          {/* Quick PDF Schedule Download Button */}
+          <button
+            onClick={() => {
+              if (onOpenHandout) onOpenHandout('Japanese_Executive_Study_Tour_Full_Itinerary_2026.pdf');
+              onClose();
+            }}
+            className="w-full py-2.5 px-4 rounded-xl bg-[#eff4ff] border border-[#d3e4fe] text-[#002045] font-bold text-xs flex items-center justify-between hover:bg-[#e0ecff] transition-colors"
+          >
+            <div className="flex items-center gap-2">
+              <span className="material-symbols-outlined text-[20px] text-[#b52426]">picture_as_pdf</span>
+              <span>Хөтөлбөрийг PDF татаж авах (Offline)</span>
+            </div>
+            <span className="material-symbols-outlined text-[16px] text-slate-400">download</span>
+          </button>
+
+          {/* Menu Sections List */}
+          {menuSections.map((sec) => (
+            <div key={sec.category} className="space-y-1">
+              <span className="text-[10px] font-black tracking-wider text-slate-400 px-2 uppercase">
+                {sec.category}
+              </span>
+              <div className="bg-slate-50 rounded-2xl border border-slate-200/70 divide-y divide-slate-100 overflow-hidden">
+                {sec.items.map((item) => {
+                  const isActive = currentTab === item.key;
+                  return (
+                    <button
+                      key={item.key}
+                      onClick={() => handleItemSelect(item.key)}
+                      className={`w-full p-3 flex items-center justify-between text-left transition-colors active:bg-slate-200 cursor-pointer ${
+                        isActive ? 'bg-[#e8f0fe]' : 'hover:bg-slate-100/80'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div
+                          className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
+                            isActive
+                              ? 'bg-[#1967d2] text-white shadow-xs'
+                              : 'bg-white text-slate-700 border border-slate-200'
+                          }`}
+                        >
+                          <span className="material-symbols-outlined text-[20px]">{item.icon}</span>
+                        </div>
+                        <div className="min-w-0">
+                          <span
+                            className={`text-xs font-bold block truncate leading-tight ${
+                              isActive ? 'text-[#1967d2]' : 'text-slate-900'
+                            }`}
+                          >
+                            {item.label}
+                          </span>
+                          <span className="text-[11px] text-slate-500 block truncate mt-0.5">
+                            {item.desc}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-1.5 shrink-0 ml-2">
+                        {item.badge && (
+                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${item.badgeColor || 'bg-slate-200 text-slate-700'}`}>
+                            {item.badge}
+                          </span>
+                        )}
+                        <span className="material-symbols-outlined text-[18px] text-slate-400">chevron_right</span>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+
+          {/* Emergency Hotlines Box */}
+          <div className="p-3.5 rounded-2xl bg-red-50 border border-red-200 text-xs">
+            <div className="flex items-center gap-2 mb-2 font-bold text-red-900">
+              <span className="material-symbols-outlined text-[18px] text-red-600">emergency</span>
+              <span>Яаралтай холбоо барих (Япон улс)</span>
+            </div>
+            <div className="space-y-1 text-[11px] text-slate-700">
+              <div className="flex justify-between">
+                <span>Монгол Улсын ЭСЯ (Токио):</span>
+                <a href="tel:+81334692088" className="font-bold text-red-800 underline">+81-3-3469-2088</a>
+              </div>
+              <div className="flex justify-between">
+                <span>Консулын 24/7 тусламж:</span>
+                <a href="tel:+818041002088" className="font-bold text-red-800 underline">+81-80-4100-2088</a>
+              </div>
+              <div className="flex justify-between pt-1 border-t border-red-200/60 text-slate-500">
+                <span>Цагдаа: 110</span>
+                <span>Түргэн тусламж: 119</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom Close Button */}
+        <div className="p-3 bg-white border-t border-slate-100 shrink-0">
+          <button
+            onClick={onClose}
+            className="w-full py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition-colors"
+          >
+            Хаах
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};

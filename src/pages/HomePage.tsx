@@ -440,68 +440,68 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate, onOpenHandout })
                 </div>
 
                 {/* 5 Prohibited Items with red circular badges */}
-                <div className="grid grid-cols-5 gap-2 text-center">
+                <div className="grid grid-cols-5 gap-1 sm:gap-2 text-center">
                   {/* Prohibit 1: Meat */}
                   <div className="flex flex-col items-center">
-                    <div className="w-12 h-12 rounded-full border-2 border-[#e52b2b] p-0.5 flex items-center justify-center relative mb-1.5 bg-red-50/50">
-                      <span className="material-symbols-outlined text-[22px] text-[#e52b2b]">set_meal</span>
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-[#e52b2b] p-0.5 flex items-center justify-center relative mb-1.5 bg-red-50/50">
+                      <span className="material-symbols-outlined text-[19px] sm:text-[22px] text-[#e52b2b]">set_meal</span>
                       <div className="absolute inset-0 flex items-center justify-center">
                         <div className="w-full h-0.5 bg-[#e52b2b] rotate-45"></div>
                       </div>
                     </div>
-                    <span className="text-[10px] font-bold text-slate-800 leading-tight">
+                    <span className="text-[9px] sm:text-[10px] font-bold text-slate-800 leading-tight">
                       Мах махан бүтээгдэхүүн
                     </span>
                   </div>
 
                   {/* Prohibit 2: Animal Leather / fur */}
                   <div className="flex flex-col items-center">
-                    <div className="w-12 h-12 rounded-full border-2 border-[#e52b2b] p-0.5 flex items-center justify-center relative mb-1.5 bg-red-50/50">
-                      <span className="material-symbols-outlined text-[22px] text-[#e52b2b]">pets</span>
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-[#e52b2b] p-0.5 flex items-center justify-center relative mb-1.5 bg-red-50/50">
+                      <span className="material-symbols-outlined text-[19px] sm:text-[22px] text-[#e52b2b]">pets</span>
                       <div className="absolute inset-0 flex items-center justify-center">
                         <div className="w-full h-0.5 bg-[#e52b2b] rotate-45"></div>
                       </div>
                     </div>
-                    <span className="text-[10px] font-bold text-slate-800 leading-tight">
+                    <span className="text-[9px] sm:text-[10px] font-bold text-slate-800 leading-tight">
                       Арьсан эдлэл
                     </span>
                   </div>
 
                   {/* Prohibit 3: Excessive Alcohol */}
                   <div className="flex flex-col items-center">
-                    <div className="w-12 h-12 rounded-full border-2 border-[#e52b2b] p-0.5 flex items-center justify-center relative mb-1.5 bg-red-50/50">
-                      <span className="material-symbols-outlined text-[22px] text-[#e52b2b]">liquor</span>
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-[#e52b2b] p-0.5 flex items-center justify-center relative mb-1.5 bg-red-50/50">
+                      <span className="material-symbols-outlined text-[19px] sm:text-[22px] text-[#e52b2b]">liquor</span>
                       <div className="absolute inset-0 flex items-center justify-center">
                         <div className="w-full h-0.5 bg-[#e52b2b] rotate-45"></div>
                       </div>
                     </div>
-                    <span className="text-[10px] font-bold text-slate-800 leading-tight">
-                      Алкогол хэтрүүлэн хэрэглэх
+                    <span className="text-[9px] sm:text-[10px] font-bold text-slate-800 leading-tight">
+                      Алкогол хэтрүүлэх
                     </span>
                   </div>
 
                   {/* Prohibit 4: Hotel Misconduct */}
                   <div className="flex flex-col items-center">
-                    <div className="w-12 h-12 rounded-full border-2 border-[#e52b2b] p-0.5 flex items-center justify-center relative mb-1.5 bg-red-50/50">
-                      <span className="material-symbols-outlined text-[22px] text-[#e52b2b]">bed</span>
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-[#e52b2b] p-0.5 flex items-center justify-center relative mb-1.5 bg-red-50/50">
+                      <span className="material-symbols-outlined text-[19px] sm:text-[22px] text-[#e52b2b]">bed</span>
                       <div className="absolute inset-0 flex items-center justify-center">
                         <div className="w-full h-0.5 bg-[#e52b2b] rotate-45"></div>
                       </div>
                     </div>
-                    <span className="text-[10px] font-bold text-slate-800 leading-tight">
-                      Байрлаж буй байранд зүй бус үйлдэл
+                    <span className="text-[9px] sm:text-[10px] font-bold text-slate-800 leading-tight">
+                      Зүй бус үйлдэл
                     </span>
                   </div>
 
                   {/* Prohibit 5: Lateness */}
                   <div className="flex flex-col items-center">
-                    <div className="w-12 h-12 rounded-full border-2 border-[#e52b2b] p-0.5 flex items-center justify-center relative mb-1.5 bg-red-50/50">
-                      <span className="material-symbols-outlined text-[22px] text-[#e52b2b]">schedule</span>
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-[#e52b2b] p-0.5 flex items-center justify-center relative mb-1.5 bg-red-50/50">
+                      <span className="material-symbols-outlined text-[19px] sm:text-[22px] text-[#e52b2b]">schedule</span>
                       <div className="absolute inset-0 flex items-center justify-center">
                         <div className="w-full h-0.5 bg-[#e52b2b] rotate-45"></div>
                       </div>
                     </div>
-                    <span className="text-[10px] font-bold text-slate-800 leading-tight">
+                    <span className="text-[9px] sm:text-[10px] font-bold text-slate-800 leading-tight">
                       Хичээлээс хоцрох
                     </span>
                   </div>

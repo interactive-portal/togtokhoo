@@ -7,6 +7,8 @@ import React, { useState, useEffect } from 'react';
 import { PageTab } from './components/Header';
 import { TopHeader } from './components/TopHeader';
 import { Sidebar } from './components/Sidebar';
+import { MobileBottomNav } from './components/MobileBottomNav';
+import { MobileMenuSheet } from './components/MobileMenuSheet';
 import { Footer } from './components/Footer';
 import { HomePage } from './pages/HomePage';
 import { ItineraryPage } from './pages/ItineraryPage';
@@ -79,29 +81,28 @@ export default function App() {
 
       {/* Main Body with Left Sidebar + Content Area */}
       <div className="flex-1 flex w-full">
-        {/* Left Sidebar Navigation */}
+        {/* Left Sidebar Navigation (Desktop) */}
         <Sidebar
           currentTab={currentTab}
           onSelectTab={handleTabChange}
-          isMobileOpen={isMobileMenuOpen}
-          onCloseMobile={() => setIsMobileMenuOpen(false)}
+          isMobileOpen={false}
         />
 
-        {/* Main Content Container */}
-        <main className="flex-1 min-w-0 flex flex-col bg-[#f8faff]">
+        {/* Main Content Container - with pb-24 on mobile for bottom nav */}
+        <main className="flex-1 min-w-0 flex flex-col bg-[#f8faff] pb-20 lg:pb-0">
           {/* Breadcrumb banner when not on Home */}
           {currentTab !== 'nuur' && (
-            <div className="bg-white border-b border-[#e5eeff] px-4 sm:px-6 py-2.5 flex items-center justify-between">
+            <div className="bg-white border-b border-[#e5eeff] px-4 sm:px-6 py-2.5 flex items-center justify-between sticky top-[53px] lg:top-0 z-30 shadow-xs">
               <button
                 onClick={() => handleTabChange('nuur')}
-                className="inline-flex items-center gap-1.5 text-xs font-bold text-[#1967d2] hover:underline cursor-pointer"
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-[#1967d2] hover:underline cursor-pointer active:scale-95"
               >
-                <span className="material-symbols-outlined text-[16px]">arrow_back</span>
-                <span>Нүүр хуудас руу буцах</span>
+                <span className="material-symbols-outlined text-[18px]">arrow_back</span>
+                <span>Нүүр хуудас</span>
               </button>
               <div className="flex items-center gap-1.5 text-xs text-slate-500 font-semibold">
-                <span>JAPAN TRIP 2026</span>
-                <span>/</span>
+                <span className="hidden sm:inline">JAPAN TRIP 2026</span>
+                <span className="hidden sm:inline">/</span>
                 <span className="text-[#002045] font-extrabold capitalize">
                   {currentTab.replace('-', ' ')}
                 </span>
@@ -162,10 +163,29 @@ export default function App() {
             )}
           </div>
 
-          {/* Footer */}
-          <Footer onSelectTab={handleTabChange} />
+          {/* Footer (hidden on small mobile screens to keep the native app clean, visible on tablet & desktop) */}
+          <div className="hidden sm:block">
+            <Footer onSelectTab={handleTabChange} />
+          </div>
         </main>
       </div>
+
+      {/* Native Mobile Bottom Navigation Bar */}
+      <MobileBottomNav
+        currentTab={currentTab}
+        onSelectTab={handleTabChange}
+        onOpenMenu={() => setIsMobileMenuOpen(true)}
+        isMenuOpen={isMobileMenuOpen}
+      />
+
+      {/* Native Mobile Menu Drawer / Sheet */}
+      <MobileMenuSheet
+        isOpen={isMobileMenuOpen}
+        onClose={() => setIsMobileMenuOpen(false)}
+        currentTab={currentTab}
+        onSelectTab={handleTabChange}
+        onOpenHandout={handleOpenHandout}
+      />
 
       {/* Handout PDF Viewer & Download Modal */}
       <HandoutModal
