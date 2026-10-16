@@ -18,7 +18,6 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
-  const [showProfileModal, setShowProfileModal] = useState(false);
 
   const notifications = [
     {
@@ -311,15 +310,6 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
               )}
             </div>
 
-            {/* Profile Avatar Photo */}
-            <button
-              onClick={() => setShowProfileModal(true)}
-              className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-cover bg-center border-2 border-white shadow-xs ring-1 ring-slate-300 hover:ring-[#002045] transition-all cursor-pointer active:scale-95"
-              style={{
-                backgroundImage: `url("https://lh3.googleusercontent.com/aida-public/AB6AXuAX9PGNzIiYjTRT7EM5Y6GCA3R0aVykcYq-dQJA5GFyLhiDCKRdGuzuVk_GmsOy9bv0tsCl9JKXfJ_2PslM3MglpBahQdH0po2U9hqW47EgmcLdGnVbJ9nVU3W0cAAjvDC1ZH_8LpnR5C_mcRj9_PmGRycg_6eRqQwoCmL7dNZ-JtdbxzwJKBj3a-DNY8PoMFNDMXFcUBfxYR9Yc1Ax7z__OB_wzuURNe7cEySjBX35gPDGbxRTF8zw")`
-              }}
-              aria-label="Хэрэглэгчийн мэдээлэл"
-            />
           </div>
         </div>
 
@@ -417,72 +407,6 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
         </div>
       </header>
 
-      {/* User Profile Modal */}
-      {showProfileModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 animate-slide-up">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-              <h3 className="font-extrabold text-[#002045] text-base">Төлөөлөгчийн Хувийн Карт</h3>
-              <button
-                onClick={() => setShowProfileModal(false)}
-                className="p-1 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100"
-              >
-                <span className="material-symbols-outlined text-[20px]">close</span>
-              </button>
-            </div>
-            <div className="py-4 flex flex-col items-center text-center">
-              <div
-                className="w-20 h-20 rounded-full bg-cover bg-center border-4 border-[#d6e3ff] shadow-md mb-2.5"
-                style={{
-                  backgroundImage: `url("https://lh3.googleusercontent.com/aida-public/AB6AXuAX9PGNzIiYjTRT7EM5Y6GCA3R0aVykcYq-dQJA5GFyLhiDCKRdGuzuVk_GmsOy9bv0tsCl9JKXfJ_2PslM3MglpBahQdH0po2U9hqW47EgmcLdGnVbJ9nVU3W0cAAjvDC1ZH_8LpnR5C_mcRj9_PmGRycg_6eRqQwoCmL7dNZ-JtdbxzwJKBj3a-DNY8PoMFNDMXFcUBfxYR9Yc1Ax7z__OB_wzuURNe7cEySjBX35gPDGbxRTF8zw")`
-                }}
-              />
-              <h4 className="font-extrabold text-base text-[#002045]">Ц. Тогтохсүрэн</h4>
-              <span className="text-xs px-2.5 py-0.5 rounded-full bg-[#e5eeff] text-[#002045] font-semibold mt-1">
-                Бизнес Төлөөлөгч • VIP Делегат
-              </span>
-              <p className="text-xs text-slate-500 mt-1">ts.togtokhsuren@gmail.com</p>
-
-              <div className="w-full mt-4 bg-[#eff4ff] rounded-2xl p-3 text-left space-y-2 text-xs">
-                <div className="flex justify-between">
-                  <span className="text-slate-500">Багийн бүртгэл:</span>
-                  <span className="font-bold text-[#002045]">Group-1 (Ахлагч Гантигмаа)</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-500">Декларац (VJW):</span>
-                  <span className="font-bold text-emerald-700">QR бэлэн</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-500">Осака буудал:</span>
-                  <span className="font-semibold text-slate-800">Hotel Granvia Osaka (#812)</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-slate-500">Токио буудал:</span>
-                  <span className="font-semibold text-slate-800">Hotel Metropolitan Tokyo (#504)</span>
-                </div>
-              </div>
-            </div>
-            <div className="flex gap-2 w-full mt-2">
-              <button
-                onClick={() => {
-                  setShowProfileModal(false);
-                  onSelectTab('admin');
-                }}
-                className="flex-1 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition-colors flex items-center justify-center gap-1.5"
-              >
-                <span className="material-symbols-outlined text-[16px]">admin_panel_settings</span>
-                <span>Админ (/admin)</span>
-              </button>
-              <button
-                onClick={() => setShowProfileModal(false)}
-                className="flex-1 py-2.5 rounded-xl bg-[#002045] text-white font-bold text-xs hover:bg-[#1a365d] transition-colors"
-              >
-                Хаах
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </>
   );
 };

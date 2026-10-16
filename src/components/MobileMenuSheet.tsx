@@ -86,26 +86,27 @@ export const MobileMenuSheet: React.FC<MobileMenuSheetProps> = ({
 
         {/* Scrollable Content */}
         <div className="flex-1 overflow-y-auto px-4 py-3 space-y-4">
-          {/* User Mini Profile Card */}
-          <div className="p-3.5 rounded-2xl bg-gradient-to-r from-[#002045] to-[#1a365d] text-white flex items-center justify-between gap-3 shadow-sm">
-            <div className="flex items-center gap-3">
-              <div
-                className="w-12 h-12 rounded-full bg-cover bg-center border-2 border-white/50 shrink-0 shadow-sm"
-                style={{
-                  backgroundImage: `url("https://lh3.googleusercontent.com/aida-public/AB6AXuAX9PGNzIiYjTRT7EM5Y6GCA3R0aVykcYq-dQJA5GFyLhiDCKRdGuzuVk_GmsOy9bv0tsCl9JKXfJ_2PslM3MglpBahQdH0po2U9hqW47EgmcLdGnVbJ9nVU3W0cAAjvDC1ZH_8LpnR5C_mcRj9_PmGRycg_6eRqQwoCmL7dNZ-JtdbxzwJKBj3a-DNY8PoMFNDMXFcUBfxYR9Yc1Ax7z__OB_wzuURNe7cEySjBX35gPDGbxRTF8zw")`
-                }}
-              />
+          {/* Tour Branding Header */}
+          <div className="p-3 rounded-2xl bg-[#002045] text-white flex items-center justify-between shadow-xs">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-full bg-[#b52426] flex items-center justify-center text-white shrink-0">
+                <span className="material-symbols-outlined text-[18px]">flight_takeoff</span>
+              </div>
               <div>
-                <span className="font-extrabold text-sm block leading-tight">Ц. Тогтохсүрэн</span>
-                <span className="text-[11px] text-[#adc7f7] block">Group-1 • VIP Делегат</span>
+                <span className="font-extrabold text-xs block leading-tight">JAPAN TRIP 2026</span>
+                <span className="text-[10px] text-slate-300">Executive Study Tour • 2026.10.18 - 10.30</span>
               </div>
             </div>
-            <div className="flex flex-col items-end gap-1">
-              <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 text-[10px] font-extrabold">
-                VJW QR Бэлэн
-              </span>
-              <span className="text-[10px] text-slate-300">Room #812</span>
-            </div>
+            <button
+              onClick={() => {
+                onSelectTab('admin');
+                onClose();
+              }}
+              className="px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-[10px] font-bold text-white flex items-center gap-1"
+            >
+              <span className="material-symbols-outlined text-[13px]">lock</span>
+              <span>Админ</span>
+            </button>
           </div>
 
           {/* Quick PDF Schedule Download Button */}
