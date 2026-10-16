@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { PageTab } from './Header';
+import { getMenusData, MenuItemConfig } from '../data/dataStore';
 
 interface SidebarProps {
   currentTab: PageTab;
@@ -14,19 +15,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
   isMobileOpen = false,
   onCloseMobile
 }) => {
-  const menuItems: { key: PageTab; label: string; icon: string }[] = [
-    { key: 'nuur', label: 'Нүүр хуудас', icon: 'home' },
-    { key: 'kholboo-barikh', label: 'Холбоо барих', icon: 'contacts' },
-    { key: 'khotolbor', label: 'Хөтөлбөр', icon: 'calendar_month' },
-    { key: 'deklarats', label: 'Деклерац\n(Visit Japan Web)', icon: 'badge' },
-    { key: 'surgaltyn-irts', label: 'Сургалтын ирц', icon: 'fact_check' },
-    { key: 'bagiin-burtgel', label: 'Багийн бүртгэл', icon: 'groups' },
-    { key: 'beleg', label: 'Бэлэг', icon: 'featured_seasonal_and_gifts' },
-    { key: 'zurgiin-san', label: 'Зургийн сан', icon: 'photo_library' },
-    { key: 'teever', label: 'Тээвэр, чиглэл, байршил', icon: 'directions_bus' },
-    { key: 'khel', label: 'Япон хэлний түргэн туслах', icon: 'chat' },
-    { key: 'shopping', label: 'Shopping', icon: 'shopping_bag' }
-  ];
+  const [menus, setMenus] = useState<MenuItemConfig[]>(() =>
+    getMenusData().filter((m) => m.enabled)
+  );
+
+  useEffect(() => {
+    const handleUpdate = () => {
+      setMenus(getMenusData().filter((m) => m.enabled));
+    };
+    window.addEventListener('study_tour_data_updated', handleUpdate);
+    return () => window.removeEventListener('study_tour_data_updated', handleUpdate);
+  }, []);
 
   const handleItemClick = (key: PageTab) => {
     onSelectTab(key);
@@ -37,26 +36,38 @@ export const Sidebar: React.FC<SidebarProps> = ({
     <div className="w-64 bg-white min-h-full flex flex-col justify-between p-3.5 border-r border-[#e5eeff] shrink-0">
       {/* Navigation List */}
       <nav className="flex flex-col gap-1 w-full">
-        {menuItems.map(item => {
+        {menus.map((item) => {
           const isActive = currentTab === item.key;
           return (
             <button
               key={item.key}
               onClick={() => handleItemClick(item.key)}
-              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-left text-xs font-bold transition-all ${
+              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-left text-xs font-bold transition-all cursor-pointer ${
                 isActive
                   ? 'bg-[#1967d2] text-white shadow-sm font-extrabold'
                   : 'text-slate-700 hover:bg-[#f1f5f9] hover:text-[#002045]'
               }`}
             >
-              <span
-                className={`material-symbols-outlined text-[20px] shrink-0 ${
-                  isActive ? 'text-white' : 'text-slate-500'
-                }`}
-              >
-                {item.icon}
-              </span>
-              <span className="leading-snug whitespace-pre-line">{item.label}</span>
+              <div className="flex items-center gap-3 min-w-0">
+                <span
+                  className={`material-symbols-outlined text-[20px] shrink-0 ${
+                    isActive ? 'text-white' : 'text-slate-500'
+                  }`}
+                >
+                  {item.icon}
+                </span>
+                <span className="leading-snug truncate">{item.label}</span>
+              </div>
+
+              {item.badge && (
+                <span
+                  className={`text-[10px] font-extrabold px-1.5 py-0.2 rounded-full shrink-0 ${
+                    isActive ? 'bg-white text-[#1967d2]' : 'bg-red-500 text-white'
+                  }`}
+                >
+                  {item.badge}
+                </span>
+              )}
             </button>
           );
         })}
@@ -64,9 +75,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
       {/* Bottom Poster: JAPAN - A new experience awaits */}
       <div className="mt-6 pt-3">
-        <div className="relative rounded-2xl overflow-hidden shadow-md aspect-[3/4] group select-none cursor-pointer">
+        <div
+          onClick={() => handleItemClick('nuur')}
+          className="relative rounded-2xl overflow-hidden shadow-md aspect-[3/4] group select-none cursor-pointer"
+        >
           <img
-            src="https://images.unsplash.com/photo-1503899036084-c55cdd92da26?q=80&w=600&auto=format&fit=crop"
+            src="https://images.unsplash.com/photo-1503899036084-c55cdd92da26?q=85&w=800&auto=format&fit=crop"
             alt="Japan Travel"
             className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
           />
@@ -110,7 +124,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <span className="font-extrabold text-[#002045] text-sm tracking-wide">ЦЭСҮҮД</span>
               <button
                 onClick={onCloseMobile}
-                className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100"
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer"
               >
                 <span className="material-symbols-outlined text-[20px]">close</span>
               </button>

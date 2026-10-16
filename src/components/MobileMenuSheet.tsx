@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { PageTab } from './Header';
+import { getMenusData, MenuItemConfig } from '../data/dataStore';
 
 interface MobileMenuSheetProps {
   isOpen: boolean;
@@ -16,41 +17,22 @@ export const MobileMenuSheet: React.FC<MobileMenuSheetProps> = ({
   onSelectTab,
   onOpenHandout
 }) => {
+  const [menus, setMenus] = useState<MenuItemConfig[]>(() =>
+    getMenusData().filter((m) => m.enabled)
+  );
+
+  useEffect(() => {
+    const handleUpdate = () => {
+      setMenus(getMenusData().filter((m) => m.enabled));
+    };
+    window.addEventListener('study_tour_data_updated', handleUpdate);
+    return () => window.removeEventListener('study_tour_data_updated', handleUpdate);
+  }, []);
+
   if (!isOpen) return null;
 
-  const menuSections: {
-    category: string;
-    items: {
-      key: PageTab;
-      label: string;
-      desc: string;
-      icon: string;
-      badge?: string;
-      badgeColor?: string;
-    }[];
-  }[] = [
-    {
-      category: 'ҮНДСЭН ХЭСЭГ',
-      items: [
-        { key: 'nuur', label: 'Нүүр хуудас', desc: 'Ерөнхий самбар, анхааруулга, цаг агаар', icon: 'home' },
-        { key: 'khotolbor', label: 'Хөтөлбөр', desc: '13 өдрийн дэлгэрэнгүй цагийн хуваарь', icon: 'calendar_month', badge: '13 Өдөр', badgeColor: 'bg-blue-100 text-blue-800' },
-        { key: 'bagiin-burtgel', label: 'Багийн бүртгэл', desc: '5 ажлын хэсэг, кейс сэдвүүд', icon: 'groups', badge: '5 Баг', badgeColor: 'bg-emerald-100 text-emerald-800' },
-        { key: 'kholboo-barikh', label: 'Холбоо барих', desc: 'Төлөөлөгчид, хөтөч, зохион байгуулагчид', icon: 'contacts' }
-      ]
-    },
-    {
-      category: 'ХЭРЭГЛЭГДЭХҮҮН & БЭЛТГЭЛ',
-      items: [
-        { key: 'deklarats', label: 'Деклерац (Visit Japan Web)', desc: 'Гааль, цагаачлалын цахим бүртгэл', icon: 'badge', badge: 'QR Бэлэн', badgeColor: 'bg-emerald-100 text-emerald-800' },
-        { key: 'beleg', label: 'Бэлэг, дурсгал', desc: 'Хүлээн авагчид, төсөв, бүртгэл', icon: 'featured_seasonal_and_gifts' },
-        { key: 'shopping', label: 'Shopping & Дэлгүүрүүд', desc: 'Токио & Осака худалдааны төвүүд', icon: 'shopping_bag', badge: '12 Төв', badgeColor: 'bg-amber-100 text-amber-800' },
-        { key: 'teever', label: 'Тээвэр, чиглэл, байршил', desc: 'Метроны карт, буудал, шинкансэн', icon: 'directions_bus' },
-        { key: 'khel', label: 'Япон хэлний түргэн туслах', desc: 'Нийтлэг үг хэллэг, дуут сонсох', icon: 'translate' },
-        { key: 'surgaltyn-irts', label: 'Сургалтын ирц', desc: 'Сургалт, үйлдвэрийн ирцийн бүртгэл', icon: 'fact_check' },
-        { key: 'zurgiin-san', label: 'Зургийн сан', desc: 'Аяллын онцлох гэрэл зургууд', icon: 'photo_library' }
-      ]
-    }
-  ];
+  const primaryItems = menus.filter((m) => m.category === 'primary');
+  const secondaryItems = menus.filter((m) => m.category === 'secondary');
 
   const handleItemSelect = (key: PageTab) => {
     onSelectTab(key);
@@ -76,7 +58,7 @@ export const MobileMenuSheet: React.FC<MobileMenuSheetProps> = ({
             </span>
             <button
               onClick={onClose}
-              className="p-1.5 rounded-full bg-slate-100 text-slate-500 hover:text-slate-800 hover:bg-slate-200"
+              className="p-1.5 rounded-full bg-slate-100 text-slate-500 hover:text-slate-800 hover:bg-slate-200 cursor-pointer"
               aria-label="Хаах"
             >
               <span className="material-symbols-outlined text-[20px]">close</span>
@@ -102,10 +84,10 @@ export const MobileMenuSheet: React.FC<MobileMenuSheetProps> = ({
                 onSelectTab('admin');
                 onClose();
               }}
-              className="px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-[10px] font-bold text-white flex items-center gap-1"
+              className="px-2.5 py-1 rounded-lg bg-amber-400 text-[#002045] hover:bg-amber-300 text-[10px] font-extrabold flex items-center gap-1 cursor-pointer"
             >
-              <span className="material-symbols-outlined text-[13px]">lock</span>
-              <span>Админ</span>
+              <span className="material-symbols-outlined text-[13px]">admin_panel_settings</span>
+              <span>Админ төв</span>
             </button>
           </div>
 
@@ -115,7 +97,7 @@ export const MobileMenuSheet: React.FC<MobileMenuSheetProps> = ({
               if (onOpenHandout) onOpenHandout('Japanese_Executive_Study_Tour_Full_Itinerary_2026.pdf');
               onClose();
             }}
-            className="w-full py-2.5 px-4 rounded-xl bg-[#eff4ff] border border-[#d3e4fe] text-[#002045] font-bold text-xs flex items-center justify-between hover:bg-[#e0ecff] transition-colors"
+            className="w-full py-2.5 px-4 rounded-xl bg-[#eff4ff] border border-[#d3e4fe] text-[#002045] font-bold text-xs flex items-center justify-between hover:bg-[#e0ecff] transition-colors cursor-pointer"
           >
             <div className="flex items-center gap-2">
               <span className="material-symbols-outlined text-[20px] text-[#b52426]">picture_as_pdf</span>
@@ -124,14 +106,14 @@ export const MobileMenuSheet: React.FC<MobileMenuSheetProps> = ({
             <span className="material-symbols-outlined text-[16px] text-slate-400">download</span>
           </button>
 
-          {/* Menu Sections List */}
-          {menuSections.map((sec) => (
-            <div key={sec.category} className="space-y-1">
+          {/* Primary Menus Group */}
+          {primaryItems.length > 0 && (
+            <div className="space-y-1">
               <span className="text-[10px] font-black tracking-wider text-slate-400 px-2 uppercase">
-                {sec.category}
+                ҮНДСЭН ХЭСЭГ
               </span>
               <div className="bg-slate-50 rounded-2xl border border-slate-200/70 divide-y divide-slate-100 overflow-hidden">
-                {sec.items.map((item) => {
+                {primaryItems.map((item) => {
                   const isActive = currentTab === item.key;
                   return (
                     <button
@@ -160,14 +142,14 @@ export const MobileMenuSheet: React.FC<MobileMenuSheetProps> = ({
                             {item.label}
                           </span>
                           <span className="text-[11px] text-slate-500 block truncate mt-0.5">
-                            {item.desc}
+                            {item.description || item.label}
                           </span>
                         </div>
                       </div>
 
                       <div className="flex items-center gap-1.5 shrink-0 ml-2">
                         {item.badge && (
-                          <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${item.badgeColor || 'bg-slate-200 text-slate-700'}`}>
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-100 text-red-800">
                             {item.badge}
                           </span>
                         )}
@@ -178,7 +160,63 @@ export const MobileMenuSheet: React.FC<MobileMenuSheetProps> = ({
                 })}
               </div>
             </div>
-          ))}
+          )}
+
+          {/* Secondary Menus Group */}
+          {secondaryItems.length > 0 && (
+            <div className="space-y-1">
+              <span className="text-[10px] font-black tracking-wider text-slate-400 px-2 uppercase">
+                ХЭРЭГЛЭГДЭХҮҮН & БЭЛТГЭЛ
+              </span>
+              <div className="bg-slate-50 rounded-2xl border border-slate-200/70 divide-y divide-slate-100 overflow-hidden">
+                {secondaryItems.map((item) => {
+                  const isActive = currentTab === item.key;
+                  return (
+                    <button
+                      key={item.key}
+                      onClick={() => handleItemSelect(item.key)}
+                      className={`w-full p-3 flex items-center justify-between text-left transition-colors active:bg-slate-200 cursor-pointer ${
+                        isActive ? 'bg-[#e8f0fe]' : 'hover:bg-slate-100/80'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div
+                          className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
+                            isActive
+                              ? 'bg-[#1967d2] text-white shadow-xs'
+                              : 'bg-white text-slate-700 border border-slate-200'
+                          }`}
+                        >
+                          <span className="material-symbols-outlined text-[20px]">{item.icon}</span>
+                        </div>
+                        <div className="min-w-0">
+                          <span
+                            className={`text-xs font-bold block truncate leading-tight ${
+                              isActive ? 'text-[#1967d2]' : 'text-slate-900'
+                            }`}
+                          >
+                            {item.label}
+                          </span>
+                          <span className="text-[11px] text-slate-500 block truncate mt-0.5">
+                            {item.description || item.label}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-1.5 shrink-0 ml-2">
+                        {item.badge && (
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">
+                            {item.badge}
+                          </span>
+                        )}
+                        <span className="material-symbols-outlined text-[18px] text-slate-400">chevron_right</span>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
           {/* Emergency Hotlines Box */}
           <div className="p-3.5 rounded-2xl bg-red-50 border border-red-200 text-xs">
@@ -201,16 +239,6 @@ export const MobileMenuSheet: React.FC<MobileMenuSheetProps> = ({
               </div>
             </div>
           </div>
-        </div>
-
-        {/* Bottom Close Button */}
-        <div className="p-3 bg-white border-t border-slate-100 shrink-0">
-          <button
-            onClick={onClose}
-            className="w-full py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition-colors"
-          >
-            Хаах
-          </button>
         </div>
       </div>
     </div>

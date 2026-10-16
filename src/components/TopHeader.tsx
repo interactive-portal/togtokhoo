@@ -1,8 +1,9 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { PageTab } from './Header';
 import { ITINERARY_DATA } from '../data/itinerary';
 import { SHOPPING_MALLS } from '../data/shopping';
 import { STUDY_TOUR_TEAMS } from '../data/teams';
+import { getMenusData, MenuItemConfig } from '../data/dataStore';
 
 interface TopHeaderProps {
   currentTab: PageTab;
@@ -18,6 +19,19 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
+
+  // Dynamic menus loaded from dataStore (managed via Admin)
+  const [menus, setMenus] = useState<MenuItemConfig[]>(() =>
+    getMenusData().filter((m) => m.enabled)
+  );
+
+  useEffect(() => {
+    const handleUpdate = () => {
+      setMenus(getMenusData().filter((m) => m.enabled));
+    };
+    window.addEventListener('study_tour_data_updated', handleUpdate);
+    return () => window.removeEventListener('study_tour_data_updated', handleUpdate);
+  }, []);
 
   const notifications = [
     {
@@ -43,16 +57,8 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
     }
   ];
 
-  // Quick mobile pill shortcuts
-  const mobilePills: { key: PageTab; label: string; icon: string; badge?: string }[] = [
-    { key: 'deklarats', label: 'Декларац (VJW)', icon: 'badge', badge: 'QR' },
-    { key: 'surgaltyn-irts', label: 'Ирц', icon: 'fact_check' },
-    { key: 'beleg', label: 'Бэлэг', icon: 'featured_seasonal_and_gifts' },
-    { key: 'teever', label: 'Тээвэр', icon: 'directions_bus' },
-    { key: 'khel', label: 'Япон хэл', icon: 'translate' },
-    { key: 'zurgiin-san', label: 'Зургийн сан', icon: 'photo_library' },
-    { key: 'kholboo-barikh', label: 'Холбоо', icon: 'contacts' }
-  ];
+  // Quick mobile pill shortcuts (Dynamic from enabled menus except Home)
+  const mobilePills = menus.filter((m) => m.key !== 'nuur');
 
   // Instant Search Results
   const searchResults = useMemo(() => {

@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { PageTab } from './Header';
+import { getMenusData, MenuItemConfig } from '../data/dataStore';
 
 interface MobileBottomNavProps {
   currentTab: PageTab;
@@ -14,12 +15,20 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
   onOpenMenu,
   isMenuOpen
 }) => {
-  const tabs: { key: PageTab; label: string; icon: string }[] = [
-    { key: 'nuur', label: 'Нүүр', icon: 'home' },
-    { key: 'khotolbor', label: 'Хөтөлбөр', icon: 'calendar_month' },
-    { key: 'bagiin-burtgel', label: 'Баг', icon: 'groups' },
-    { key: 'shopping', label: 'Shopping', icon: 'shopping_bag' }
-  ];
+  const [menus, setMenus] = useState<MenuItemConfig[]>(() =>
+    getMenusData().filter((m) => m.enabled)
+  );
+
+  useEffect(() => {
+    const handleUpdate = () => {
+      setMenus(getMenusData().filter((m) => m.enabled));
+    };
+    window.addEventListener('study_tour_data_updated', handleUpdate);
+    return () => window.removeEventListener('study_tour_data_updated', handleUpdate);
+  }, []);
+
+  // Primary 4 tabs for mobile bottom navigation
+  const primaryTabs = menus.slice(0, 4);
 
   return (
     <nav
@@ -28,16 +37,14 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
       aria-label="Мобайл үндсэн цэс"
     >
       <div className="flex items-center justify-around max-w-lg mx-auto">
-        {tabs.map((tab) => {
+        {primaryTabs.map((tab) => {
           const isActive = currentTab === tab.key && !isMenuOpen;
           return (
             <button
               key={tab.key}
               onClick={() => onSelectTab(tab.key)}
               className={`flex-1 flex flex-col items-center justify-center py-1 rounded-xl transition-all active:scale-95 cursor-pointer ${
-                isActive
-                  ? 'text-[#1967d2]'
-                  : 'text-slate-500 hover:text-slate-800'
+                isActive ? 'text-[#1967d2]' : 'text-slate-500 hover:text-slate-800'
               }`}
             >
               <div
@@ -45,20 +52,16 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
                   isActive ? 'bg-[#e8f0fe]' : 'bg-transparent'
                 }`}
               >
-                <span
-                  className={`material-symbols-outlined text-[22px] ${
-                    isActive ? 'font-bold' : ''
-                  }`}
-                >
+                <span className={`material-symbols-outlined text-[22px] ${isActive ? 'font-bold' : ''}`}>
                   {tab.icon}
                 </span>
               </div>
               <span
-                className={`text-[11px] font-bold mt-0.5 leading-none ${
+                className={`text-[11px] font-bold mt-0.5 leading-none truncate max-w-[64px] ${
                   isActive ? 'text-[#1967d2]' : 'text-slate-600'
                 }`}
               >
-                {tab.label}
+                {tab.label.split(' ')[0]}
               </span>
             </button>
           );
@@ -68,9 +71,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
         <button
           onClick={onOpenMenu}
           className={`flex-1 flex flex-col items-center justify-center py-1 rounded-xl transition-all active:scale-95 cursor-pointer ${
-            isMenuOpen
-              ? 'text-[#1967d2]'
-              : 'text-slate-500 hover:text-slate-800'
+            isMenuOpen ? 'text-[#1967d2]' : 'text-slate-500 hover:text-slate-800'
           }`}
         >
           <div
@@ -78,11 +79,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
               isMenuOpen ? 'bg-[#e8f0fe]' : 'bg-transparent'
             }`}
           >
-            <span
-              className={`material-symbols-outlined text-[22px] ${
-                isMenuOpen ? 'font-bold' : ''
-              }`}
-            >
+            <span className={`material-symbols-outlined text-[22px] ${isMenuOpen ? 'font-bold' : ''}`}>
               grid_view
             </span>
           </div>

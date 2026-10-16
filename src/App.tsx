@@ -62,12 +62,23 @@ export default function App() {
         setCurrentTab(hash);
       }
     };
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Secret admin shortcut: Ctrl+Shift+A or Alt+A
+      if ((e.ctrlKey && e.shiftKey && (e.key === 'A' || e.key === 'a')) || (e.altKey && (e.key === 'A' || e.key === 'a'))) {
+        e.preventDefault();
+        setCurrentTab((prev) => (prev === 'admin' ? 'nuur' : 'admin'));
+      }
+    };
+
     handleRoute();
     window.addEventListener('hashchange', handleRoute);
     window.addEventListener('popstate', handleRoute);
+    window.addEventListener('keydown', handleKeyDown);
     return () => {
       window.removeEventListener('hashchange', handleRoute);
       window.removeEventListener('popstate', handleRoute);
+      window.removeEventListener('keydown', handleKeyDown);
     };
   }, []);
 

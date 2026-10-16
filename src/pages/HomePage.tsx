@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { PageTab } from '../components/Header';
+import { getBannersData, BannerSlide } from '../data/dataStore';
 
 interface HomePageProps {
   onNavigate: (tab: PageTab) => void;
@@ -7,9 +8,35 @@ interface HomePageProps {
 }
 
 export const HomePage: React.FC<HomePageProps> = ({ onNavigate, onOpenHandout }) => {
-  // Hero Carousel slide
+  // Hero Banners from dataStore (Dynamic & Editable in Admin)
+  const [banners, setBanners] = useState<BannerSlide[]>(() => {
+    const list = getBannersData().filter((b) => b.enabled);
+    return list.length > 0 ? list : getBannersData();
+  });
   const [currentSlide, setCurrentSlide] = useState(0);
-  const totalSlides = 3;
+  const [isPaused, setIsPaused] = useState(false);
+
+  // Reload banners when admin makes updates
+  useEffect(() => {
+    const handleDataUpdate = () => {
+      const list = getBannersData().filter((b) => b.enabled);
+      setBanners(list.length > 0 ? list : getBannersData());
+    };
+    window.addEventListener('study_tour_data_updated', handleDataUpdate);
+    return () => window.removeEventListener('study_tour_data_updated', handleDataUpdate);
+  }, []);
+
+  // Auto-play carousel every 5.5 seconds unless user hovers
+  useEffect(() => {
+    if (isPaused || banners.length <= 1) return;
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % banners.length);
+    }, 5500);
+    return () => clearInterval(timer);
+  }, [isPaused, banners.length]);
+
+  // Active slide safe reference
+  const activeSlide: BannerSlide = banners[currentSlide] || banners[0];
 
   // Shopping widget city tab
   const [shoppingCityTab, setShoppingCityTab] = useState<'tokyo' | 'osaka'>('tokyo');
@@ -179,75 +206,131 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate, onOpenHandout })
         {/* CENTER MAIN COLUMN (xl:col-span-8 or 9) */}
         {/* ========================================================= */}
         <div className="xl:col-span-8 flex flex-col gap-5">
-          {/* 1. HERO CAROUSEL BANNER */}
-          <div className="relative rounded-2xl overflow-hidden shadow-sm bg-slate-900 min-h-[300px] sm:min-h-[360px] flex items-center group">
-            {/* Background Image: Mount Fuji with Chureito Pagoda */}
+          {/* 1. HIGH-QUALITY HERO CAROUSEL BANNER (Dynamic from dataStore & Admin) */}
+          <div
+            onMouseEnter={() => setIsPaused(true)}
+            onMouseLeave={() => setIsPaused(false)}
+            className="relative rounded-2xl overflow-hidden shadow-md bg-slate-950 min-h-[320px] sm:min-h-[380px] lg:min-h-[420px] flex items-center group transition-all"
+          >
+            {/* Background Image: Dynamic Ultra HD Quality Image */}
             <img
-              src="https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?q=80&w=1600&auto=format&fit=crop"
-              alt="Mount Fuji and Pagoda"
-              className="absolute inset-0 w-full h-full object-cover opacity-90 transition-transform duration-1000 group-hover:scale-105"
+              src={activeSlide.imageUrl}
+              alt={activeSlide.title}
+              className="absolute inset-0 w-full h-full object-cover opacity-90 transition-all duration-700 group-hover:scale-[1.02]"
             />
-            {/* Subtle Gradient Overlays */}
-            <div className="absolute inset-0 bg-gradient-to-r from-[#001738]/90 via-[#001738]/60 to-transparent" />
 
-            {/* Left Info Overlay Box */}
-            <div className="relative z-10 p-5 sm:p-8 max-w-xl text-white">
-              <div className="flex items-center gap-3 mb-2">
-                <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center text-white border border-white/30 shadow-sm shrink-0">
-                  <span className="material-symbols-outlined text-[22px]">flight_takeoff</span>
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-xs font-semibold tracking-wider text-slate-200 uppercase">
-                    Нисэх өдөр
+            {/* Premium Multi-layer Vignette & Dark Contrast Gradient */}
+            <div className="absolute inset-0 bg-gradient-to-r from-[#00122e]/95 via-[#001738]/75 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#000d20]/80 via-transparent to-[#00122e]/40" />
+
+            {/* Left Info Overlay Content */}
+            <div className="relative z-10 p-5 sm:p-8 lg:p-10 max-w-2xl text-white flex flex-col justify-between h-full">
+              <div>
+                {/* Top Tag & Flight / Topic Pill */}
+                <div className="flex items-center gap-2.5 mb-3 flex-wrap">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-[#b52426] text-white text-[11px] font-black uppercase tracking-wider shadow-sm">
+                    <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping"></span>
+                    {activeSlide.tag || 'ОНЦЛОХ'}
                   </span>
-                  <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white tracking-tight">
-                    2026.10.18 (Ня) 13:00
-                  </h1>
+                  <span className="px-2.5 py-0.5 rounded-lg bg-white/20 backdrop-blur-md text-[11px] font-bold text-slate-200 border border-white/20">
+                    Слайд {currentSlide + 1} / {banners.length}
+                  </span>
+                  {activeSlide.dateText && (
+                    <span className="text-xs text-amber-300 font-bold hidden sm:inline flex items-center gap-1">
+                      <span className="material-symbols-outlined text-[15px]">event</span>
+                      {activeSlide.dateText}
+                    </span>
+                  )}
                 </div>
+
+                {/* Main Headline */}
+                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-black text-white tracking-tight leading-[1.15] drop-shadow-md">
+                  {activeSlide.title}
+                </h1>
+
+                {/* Subtitle */}
+                <p className="mt-2 text-xs sm:text-sm text-slate-200 font-medium leading-relaxed max-w-xl line-clamp-2">
+                  {activeSlide.subtitle}
+                </p>
+
+                {/* Warning / Alert Badge */}
+                {activeSlide.alertBadge && (
+                  <div className="mt-4 inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-[#ffdad6] text-[#410003] border border-[#ffb4ab] text-xs sm:text-sm font-bold shadow-sm">
+                    <span className="material-symbols-outlined text-[18px] text-[#b52426] shrink-0">warning</span>
+                    <span>{activeSlide.alertBadge}</span>
+                  </div>
+                )}
+
+                {/* Location text */}
+                {activeSlide.locationText && (
+                  <div className="mt-3.5 flex items-center gap-2 text-xs sm:text-sm text-slate-300 font-semibold">
+                    <span className="material-symbols-outlined text-[18px] text-amber-300 shrink-0">location_on</span>
+                    <span>{activeSlide.locationText}</span>
+                  </div>
+                )}
               </div>
 
-              {/* Red Alert Pill */}
-              <div className="mt-4 inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-[#ffdad6] text-[#410003] border border-[#ffb4ab] text-xs sm:text-sm font-bold shadow-sm">
-                <span className="material-symbols-outlined text-[18px] text-[#b52426]">warning</span>
-                <span>Нислэгээс 2-3 цагийн өмнө нисэх буудалд ирсэн байх.</span>
-              </div>
-
-              {/* Airport Subtitle */}
-              <div className="mt-4 flex items-center gap-2 text-xs sm:text-sm text-slate-200 font-medium">
-                <span className="material-symbols-outlined text-[18px] text-amber-300">location_on</span>
-                <span>Чингис хаан олон улсын нисэх буудал (UBN)</span>
-              </div>
+              {/* Action Button CTA */}
+              {activeSlide.actionTab && (
+                <div className="mt-6 flex items-center gap-3">
+                  <button
+                    onClick={() => onNavigate(activeSlide.actionTab!)}
+                    className="px-5 py-2.5 rounded-xl bg-[#1967d2] hover:bg-[#1557b0] text-white text-xs sm:text-sm font-extrabold shadow-md flex items-center gap-2 transition-all active:scale-95 cursor-pointer ring-2 ring-white/20"
+                  >
+                    <span>{activeSlide.actionText || 'Дэлгэрэнгүй үзэх'}</span>
+                    <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
+                  </button>
+                  <button
+                    onClick={() => onNavigate('admin')}
+                    className="px-3.5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white/80 hover:text-white backdrop-blur-md text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
+                    title="Баннер өөрчлөх (Админ)"
+                  >
+                    <span className="material-symbols-outlined text-[16px]">edit</span>
+                    <span className="hidden sm:inline">Баннер засах</span>
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Carousel Navigation Arrows */}
-            <button
-              onClick={() => setCurrentSlide((prev) => (prev === 0 ? totalSlides - 1 : prev - 1))}
-              className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/40 hover:bg-black/60 text-white backdrop-blur-sm flex items-center justify-center transition-colors z-20"
-              aria-label="Өмнөх"
-            >
-              <span className="material-symbols-outlined text-[20px]">chevron_left</span>
-            </button>
-            <button
-              onClick={() => setCurrentSlide((prev) => (prev + 1) % totalSlides)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/40 hover:bg-black/60 text-white backdrop-blur-sm flex items-center justify-center transition-colors z-20"
-              aria-label="Дараах"
-            >
-              <span className="material-symbols-outlined text-[20px]">chevron_right</span>
-            </button>
-
-            {/* Pagination Dots */}
-            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 z-20">
-              {[0, 1, 2, 3].map((dot) => (
+            {banners.length > 1 && (
+              <>
                 <button
-                  key={dot}
-                  onClick={() => setCurrentSlide(dot % totalSlides)}
-                  className={`h-2 rounded-full transition-all ${
-                    currentSlide === dot ? 'w-6 bg-white' : 'w-2 bg-white/40 hover:bg-white/70'
-                  }`}
-                  aria-label={`Slide ${dot + 1}`}
-                />
-              ))}
-            </div>
+                  onClick={() =>
+                    setCurrentSlide((prev) => (prev === 0 ? banners.length - 1 : prev - 1))
+                  }
+                  className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/40 hover:bg-black/70 text-white backdrop-blur-md flex items-center justify-center transition-all z-20 cursor-pointer shadow-md hover:scale-105 active:scale-95"
+                  aria-label="Өмнөх баннер"
+                >
+                  <span className="material-symbols-outlined text-[22px]">chevron_left</span>
+                </button>
+                <button
+                  onClick={() => setCurrentSlide((prev) => (prev + 1) % banners.length)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/40 hover:bg-black/70 text-white backdrop-blur-md flex items-center justify-center transition-all z-20 cursor-pointer shadow-md hover:scale-105 active:scale-95"
+                  aria-label="Дараах баннер"
+                >
+                  <span className="material-symbols-outlined text-[22px]">chevron_right</span>
+                </button>
+              </>
+            )}
+
+            {/* Pagination Navigation Dots */}
+            {banners.length > 1 && (
+              <div className="absolute bottom-3.5 left-1/2 -translate-x-1/2 flex items-center gap-2 z-20 bg-black/30 backdrop-blur-md px-3 py-1.5 rounded-full">
+                {banners.map((_, dotIdx) => (
+                  <button
+                    key={dotIdx}
+                    onClick={() => setCurrentSlide(dotIdx)}
+                    className={`h-2 rounded-full transition-all cursor-pointer ${
+                      currentSlide === dotIdx
+                        ? 'w-7 bg-white shadow-sm'
+                        : 'w-2 bg-white/40 hover:bg-white/70'
+                    }`}
+                    aria-label={`Slide ${dotIdx + 1}`}
+                  />
+                ))}
+              </div>
+            )}
           </div>
 
           {/* 2. FOUR QUICK ACTION CARDS */}
