@@ -528,34 +528,36 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onBackToApp }) => {
           </div>
         </div>
 
-        {/* Category Navigation Pills */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 border-t border-white/10 overflow-x-auto scrollbar-none flex items-center gap-1.5 py-2">
-          {categoryTabs.map((tab) => {
-            const isActive = activeTab === tab.key;
-            return (
-              <button
-                key={tab.key}
-                onClick={() => setActiveTab(tab.key)}
-                className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold shrink-0 transition-all cursor-pointer ${
-                  isActive
-                    ? 'bg-[#1967d2] text-white shadow-sm ring-1 ring-white/30'
-                    : 'text-slate-300 hover:bg-white/10 hover:text-white'
-                }`}
-              >
-                <span className="material-symbols-outlined text-[18px]">{tab.icon}</span>
-                <span>{tab.label}</span>
-                {tab.countBadge && (
-                  <span
-                    className={`text-[10px] px-1.5 py-0.2 rounded-md font-extrabold ${
-                      isActive ? 'bg-white/20 text-white' : 'bg-white/10 text-amber-300'
-                    }`}
-                  >
-                    {tab.countBadge}
-                  </span>
-                )}
-              </button>
-            );
-          })}
+        {/* Category Navigation Pills - Fully visible multi-line wrap, no hidden or cut-off tabs */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 border-t border-white/10 py-2.5">
+          <div className="flex flex-wrap items-center gap-2">
+            {categoryTabs.map((tab) => {
+              const isActive = activeTab === tab.key;
+              return (
+                <button
+                  key={tab.key}
+                  onClick={() => setActiveTab(tab.key)}
+                  className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
+                    isActive
+                      ? 'bg-[#1967d2] text-white shadow-md ring-2 ring-white/30 scale-[1.02]'
+                      : 'bg-white/10 text-slate-200 hover:bg-white/20 hover:text-white border border-white/10'
+                  }`}
+                >
+                  <span className="material-symbols-outlined text-[18px] shrink-0">{tab.icon}</span>
+                  <span className="font-extrabold">{tab.label}</span>
+                  {tab.countBadge && (
+                    <span
+                      className={`text-[10px] px-2 py-0.5 rounded-full font-black ${
+                        isActive ? 'bg-white/25 text-white' : 'bg-amber-400/25 text-amber-300 border border-amber-400/30'
+                      }`}
+                    >
+                      {tab.countBadge}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
         </div>
       </header>
 
@@ -731,12 +733,12 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onBackToApp }) => {
                           </span>
                         )}
                       </div>
-                      <p className="text-xs text-slate-500 mt-1 line-clamp-1">{item.description}</p>
+                      <p className="text-xs text-slate-500 mt-1 leading-relaxed break-words">{item.description}</p>
                     </div>
                   </div>
 
                   {/* Middle: Inline Editable fields */}
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 flex-1 max-w-xl">
+                  <div className="grid grid-cols-1 sm:grid-cols-4 gap-2 flex-1 max-w-2xl">
                     <div>
                       <label className="text-[10px] font-bold text-slate-400 uppercase">Цэсний нэр</label>
                       <input
@@ -763,6 +765,16 @@ export const AdminPage: React.FC<AdminPageProps> = ({ onBackToApp }) => {
                         value={item.badge || ''}
                         placeholder="Жишээ: QR, Шинэ"
                         onChange={(e) => handleUpdateMenuField(item.id, 'badge', e.target.value || undefined)}
+                        className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 text-xs focus:outline-none focus:ring-1 focus:ring-[#1967d2]"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[10px] font-bold text-slate-400 uppercase">Тайлбар</label>
+                      <input
+                        type="text"
+                        value={item.description || ''}
+                        placeholder="Цэсний товч тайлбар"
+                        onChange={(e) => handleUpdateMenuField(item.id, 'description', e.target.value)}
                         className="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 text-xs focus:outline-none focus:ring-1 focus:ring-[#1967d2]"
                       />
                     </div>

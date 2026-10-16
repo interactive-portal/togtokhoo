@@ -423,17 +423,49 @@ export const DirectoryPage: React.FC = () => {
                     } ${del.avatarColor || 'text-[#002045]'}`}>
                       {del.initials}
                     </div>
-                    <div className="flex flex-col min-w-0">
+                    <div className="flex flex-col min-w-0 flex-1">
                       <div className="flex items-center gap-1.5 flex-wrap">
-                        <h4 className="font-bold text-base text-[#002045] truncate">{del.name}</h4>
+                        <h4 className="font-bold text-base text-[#002045] break-words">{del.name}</h4>
                         <span className="px-2 py-0.5 rounded-full bg-[#ffdad6] text-[#920212] text-[11px] font-extrabold shrink-0">
                           "{del.nickname}"
                         </span>
                       </div>
-                      <p className="text-xs text-[#586e8d] font-medium truncate mt-0.5">{del.position}</p>
-                      <p className="text-[11px] text-slate-400 truncate">{del.fullName}</p>
+                      <p className="text-xs text-[#586e8d] font-medium break-words mt-0.5">{del.position}</p>
+                      <p className="text-[11px] text-slate-400 break-words">{del.fullName}</p>
                     </div>
                   </div>
+
+                  {/* Personal delegate details: Group, VJW QR, Osaka & Tokyo Hotel rooms */}
+                  {(del.group || del.osakaHotel || del.tokyoHotel || del.vjwQrStatus) && (
+                    <div className="flex flex-col gap-1.5 p-3 rounded-xl bg-blue-50/70 border border-blue-200 text-xs">
+                      {del.group && (
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-slate-600 font-semibold text-[11px]">Багийн бүртгэл:</span>
+                          <span className="font-bold text-[#002045] text-right">{del.group}</span>
+                        </div>
+                      )}
+                      {del.vjwQrStatus && (
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-slate-600 font-semibold text-[11px]">Декларац (VJW):</span>
+                          <span className="font-extrabold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded text-[10px]">
+                            {del.vjwQrStatus}
+                          </span>
+                        </div>
+                      )}
+                      {del.osakaHotel && (
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-slate-600 font-semibold text-[11px]">Осака буудал:</span>
+                          <span className="font-bold text-[#002045] text-right">{del.osakaHotel}</span>
+                        </div>
+                      )}
+                      {del.tokyoHotel && (
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-slate-600 font-semibold text-[11px]">Токио буудал:</span>
+                          <span className="font-bold text-[#002045] text-right">{del.tokyoHotel}</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
 
                   {/* Contact details block */}
                   <div className="flex flex-col gap-2 p-3 rounded-xl bg-[#f8f9ff] text-xs border border-slate-100">
@@ -451,11 +483,11 @@ export const DirectoryPage: React.FC = () => {
                       </span>
                       <span className="font-semibold text-slate-700">{del.phoneJp}</span>
                     </div>
-                    <div className="flex items-center justify-between truncate">
+                    <div className="flex items-center justify-between">
                       <span className="text-[#586e8d] flex items-center gap-1 text-[11px] font-semibold">
                         <span className="material-symbols-outlined text-[15px] text-[#002045]">mail</span> Имэйл:
                       </span>
-                      <a href={`mailto:${del.email}`} className="font-medium text-[#002045] hover:underline truncate ml-2">
+                      <a href={`mailto:${del.email}`} className="font-medium text-[#002045] hover:underline ml-2 break-all">
                         {del.email}
                       </a>
                     </div>

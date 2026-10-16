@@ -30,6 +30,10 @@ export interface Delegate {
   email: string;
   avatarBg?: string;
   avatarColor?: string;
+  group?: string;
+  osakaHotel?: string;
+  tokyoHotel?: string;
+  vjwQrStatus?: string;
 }
 
 export const LEADERS: Leader[] = [
@@ -75,6 +79,27 @@ export const LEADERS: Leader[] = [
 ];
 
 export const DELEGATES: Delegate[] = [
+  {
+    id: 'del-togtokhsuren',
+    number: 'Төлөөлөгч #01',
+    initials: 'ЦТ',
+    company: 'Executive Member',
+    sector: 'Менежмент & Стратеги',
+    sectorBadgeColor: 'blue',
+    name: 'Ц. Тогтохсүрэн',
+    fullName: 'Ц. Тогтохсүрэн',
+    nickname: 'Тогтох',
+    position: 'Төлөөлөгч (Group-1)',
+    phoneMn: '+976 9911-0000',
+    phoneJp: '+81 80-0000-1111',
+    email: 'ts.togtokhsuren@gmail.com',
+    avatarBg: 'bg-[#1967d2]',
+    avatarColor: 'text-white',
+    group: 'Group-1 (Ахлагч Гантигмаа)',
+    osakaHotel: 'Hotel Granvia Osaka (#812)',
+    tokyoHotel: 'Hotel Metropolitan Tokyo (#504)',
+    vjwQrStatus: 'QR бэлэн'
+  },
   {
     id: 'del-01',
     number: 'Төлөөлөгч #01',

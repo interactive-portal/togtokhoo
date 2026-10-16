@@ -877,6 +877,119 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate, onOpenHandout })
         {/* RIGHT PANEL COLUMN (xl:col-span-4) */}
         {/* ========================================================= */}
         <div className="xl:col-span-4 flex flex-col gap-5">
+          {/* 0. ТӨЛӨӨЛӨГЧИЙН ХУВИЙН КАРТ (Ц. Тогтохсүрэн) */}
+          <div className="bg-gradient-to-br from-[#002045] to-[#001026] text-white rounded-2xl p-5 shadow-lg border border-blue-900/40 relative overflow-hidden">
+            {/* Subtle background decoration */}
+            <div className="absolute -right-6 -bottom-6 w-32 h-32 rounded-full bg-white/5 pointer-events-none"></div>
+
+            <div className="flex items-center justify-between pb-3 mb-3.5 border-b border-white/10 relative z-10">
+              <div className="flex items-center gap-2">
+                <span className="w-8 h-8 rounded-xl bg-amber-400 text-[#002045] flex items-center justify-center font-extrabold text-sm shadow-xs">
+                  <span className="material-symbols-outlined text-[20px]">badge</span>
+                </span>
+                <div>
+                  <h2 className="text-sm font-black tracking-tight text-white leading-tight">
+                    Төлөөлөгчийн Хувийн Карт
+                  </h2>
+                  <span className="text-[10px] text-amber-300 font-bold">Executive Study Tour 2026</span>
+                </div>
+              </div>
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">
+                Идэвхтэй
+              </span>
+            </div>
+
+            {/* Delegate Info */}
+            <div className="space-y-3 relative z-10 text-xs">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-full bg-[#1967d2] text-white flex items-center justify-center font-black text-base shadow-inner border border-white/20 shrink-0">
+                  ЦТ
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-extrabold text-base text-white leading-tight">
+                    Ц. Тогтохсүрэн
+                  </h3>
+                  <p className="text-[11px] text-slate-300 mt-0.5">
+                    Executive Member • Төлөөлөгч
+                  </p>
+                </div>
+              </div>
+
+              {/* Detail Rows */}
+              <div className="bg-white/10 backdrop-blur-md rounded-xl p-3 border border-white/10 space-y-2">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-slate-300 font-medium text-[11px] flex items-center gap-1">
+                    <span className="material-symbols-outlined text-[15px] text-blue-300">groups</span>
+                    Багийн бүртгэл:
+                  </span>
+                  <button
+                    onClick={() => onNavigate('bagiin-burtgel')}
+                    className="font-bold text-white hover:text-amber-300 transition-colors text-right underline decoration-dotted"
+                  >
+                    Group-1 (Ахлагч Гантигмаа)
+                  </button>
+                </div>
+
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-slate-300 font-medium text-[11px] flex items-center gap-1">
+                    <span className="material-symbols-outlined text-[15px] text-emerald-400">qr_code_2</span>
+                    Декларац (VJW):
+                  </span>
+                  <button
+                    onClick={() => onNavigate('deklarats')}
+                    className="px-2 py-0.5 rounded-md font-black text-[10px] bg-emerald-500 text-white flex items-center gap-1 cursor-pointer hover:bg-emerald-600 shadow-xs"
+                  >
+                    <span className="material-symbols-outlined text-[13px]">check_circle</span>
+                    <span>QR бэлэн</span>
+                  </button>
+                </div>
+
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-slate-300 font-medium text-[11px] flex items-center gap-1">
+                    <span className="material-symbols-outlined text-[15px] text-amber-300">hotel</span>
+                    Осака буудал:
+                  </span>
+                  <button
+                    onClick={() => onNavigate('teever')}
+                    className="font-bold text-white hover:text-amber-300 transition-colors text-right"
+                  >
+                    Hotel Granvia Osaka (#812)
+                  </button>
+                </div>
+
+                <div className="flex items-center justify-between gap-2">
+                  <span className="text-slate-300 font-medium text-[11px] flex items-center gap-1">
+                    <span className="material-symbols-outlined text-[15px] text-amber-300">hotel</span>
+                    Токио буудал:
+                  </span>
+                  <button
+                    onClick={() => onNavigate('teever')}
+                    className="font-bold text-white hover:text-amber-300 transition-colors text-right"
+                  >
+                    Hotel Metropolitan Tokyo (#504)
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Bottom shortcut buttons */}
+            <div className="mt-3.5 pt-3 border-t border-white/10 flex items-center justify-between gap-2">
+              <button
+                onClick={() => onNavigate('kholboo-barikh')}
+                className="flex-1 py-1.5 px-2 rounded-lg bg-white/10 hover:bg-white/20 text-white text-[11px] font-bold transition-all text-center"
+              >
+                Бүх төлөөлөгчид
+              </button>
+              <button
+                onClick={() => onNavigate('deklarats')}
+                className="flex-1 py-1.5 px-2 rounded-lg bg-[#1967d2] hover:bg-[#1557b0] text-white text-[11px] font-bold transition-all text-center flex items-center justify-center gap-1"
+              >
+                <span>VJW QR харах</span>
+                <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
+              </button>
+            </div>
+          </div>
+
           {/* 1. Аяллын хөтөлбөр Card */}
           <div className="bg-white rounded-2xl border border-[#e5eeff] p-4 sm:p-5 shadow-xs">
             <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-100">

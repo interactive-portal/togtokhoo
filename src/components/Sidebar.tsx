@@ -56,7 +56,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 >
                   {item.icon}
                 </span>
-                <span className="leading-snug truncate">{item.label}</span>
+                <span className="leading-snug break-words">{item.label}</span>
               </div>
 
               {item.badge && (

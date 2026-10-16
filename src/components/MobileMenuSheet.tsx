@@ -133,15 +133,15 @@ export const MobileMenuSheet: React.FC<MobileMenuSheetProps> = ({
                         >
                           <span className="material-symbols-outlined text-[20px]">{item.icon}</span>
                         </div>
-                        <div className="min-w-0">
+                        <div className="min-w-0 flex-1">
                           <span
-                            className={`text-xs font-bold block truncate leading-tight ${
+                            className={`text-xs font-bold block leading-tight break-words ${
                               isActive ? 'text-[#1967d2]' : 'text-slate-900'
                             }`}
                           >
                             {item.label}
                           </span>
-                          <span className="text-[11px] text-slate-500 block truncate mt-0.5">
+                          <span className="text-[11px] text-slate-500 block break-words mt-0.5">
                             {item.description || item.label}
                           </span>
                         </div>
@@ -189,15 +189,15 @@ export const MobileMenuSheet: React.FC<MobileMenuSheetProps> = ({
                         >
                           <span className="material-symbols-outlined text-[20px]">{item.icon}</span>
                         </div>
-                        <div className="min-w-0">
+                        <div className="min-w-0 flex-1">
                           <span
-                            className={`text-xs font-bold block truncate leading-tight ${
+                            className={`text-xs font-bold block leading-tight break-words ${
                               isActive ? 'text-[#1967d2]' : 'text-slate-900'
                             }`}
                           >
                             {item.label}
                           </span>
-                          <span className="text-[11px] text-slate-500 block truncate mt-0.5">
+                          <span className="text-[11px] text-slate-500 block break-words mt-0.5">
                             {item.description || item.label}
                           </span>
                         </div>

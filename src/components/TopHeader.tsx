@@ -401,7 +401,7 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
                 >
                   {pill.icon}
                 </span>
-                <span>{pill.label}</span>
+                <span className="whitespace-nowrap">{pill.label}</span>
                 {pill.badge && !isActive && (
                   <span className="px-1 py-0.2 rounded bg-emerald-100 text-emerald-800 text-[9px] font-black">
                     {pill.badge}

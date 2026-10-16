@@ -29,6 +29,7 @@ export const STUDY_TOUR_TEAMS: TeamGroup[] = [
     badgeBg: 'bg-[#d6e3ff] text-[#001b3c]',
     members: [
       { id: 'm-1-1', name: 'Гантигмаа', role: 'Багийн ахлагч', isLeader: true },
+      { id: 'm-1-togtokhsuren', name: 'Ц. Тогтохсүрэн', role: 'Төлөөлөгч (Шинжээч)', isLeader: false },
       { id: 'm-1-2', name: 'Цолмон', role: 'Шинжээч' },
       { id: 'm-1-3', name: 'Энхтөгс', role: 'Судлаач' },
       { id: 'm-1-4', name: 'Батдаваа', role: 'Зохион байгуулагч' },
