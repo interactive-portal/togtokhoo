@@ -1,5 +1,6 @@
-import React, { useState, useMemo } from 'react';
-import { ITINERARY_DATA, ItineraryItem } from '../data/itinerary';
+import React, { useState, useMemo, useEffect } from 'react';
+import { ItineraryItem } from '../data/itinerary';
+import { getItineraryData } from '../data/dataStore';
 
 interface ItineraryPageProps {
   onOpenHandout: (title: string) => void;
@@ -10,12 +11,22 @@ export const ItineraryPage: React.FC<ItineraryPageProps> = ({
   onOpenHandout,
   onOpenDetail
 }) => {
+  const [itinerary, setItinerary] = useState<ItineraryItem[]>(getItineraryData);
+
+  useEffect(() => {
+    const handleUpdate = () => {
+      setItinerary(getItineraryData());
+    };
+    window.addEventListener('study_tour_data_updated', handleUpdate);
+    return () => window.removeEventListener('study_tour_data_updated', handleUpdate);
+  }, []);
+
   const [activeCityTab, setActiveCityTab] = useState<'all' | 'osaka' | 'tokyo'>('all');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
 
   const filteredItems = useMemo(() => {
-    return ITINERARY_DATA.filter((item) => {
+    return itinerary.filter((item) => {
       // City filter
       if (activeCityTab !== 'all' && item.city !== activeCityTab) {
         return false;
@@ -53,7 +64,7 @@ VERSION:2.0
 PRODID:-//Japanese Executive Study Tour 2026//EN
 CALSCALE:GREGORIAN
 `;
-    ITINERARY_DATA.forEach((item) => {
+    itinerary.forEach((item) => {
       icsContent += `BEGIN:VEVENT
 SUMMARY:${item.title}
 DESCRIPTION:${item.description.replace(/\n/g, ' ')}

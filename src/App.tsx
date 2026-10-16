@@ -21,6 +21,7 @@ import { LanguagePage } from './pages/LanguagePage';
 import { AttendancePage } from './pages/AttendancePage';
 import { GalleryPage } from './pages/GalleryPage';
 import { DirectoryPage } from './pages/DirectoryPage';
+import { AdminPage } from './pages/AdminPage';
 import { HandoutModal } from './components/HandoutModal';
 import { EventDetailModal } from './components/EventDetailModal';
 import { ItineraryItem } from './data/itinerary';
@@ -32,10 +33,17 @@ export default function App() {
   const [handoutTitle, setHandoutTitle] = useState('Orientation_Handout.pdf');
   const [selectedEvent, setSelectedEvent] = useState<ItineraryItem | null>(null);
 
-  // Sync hash if present
+  // Sync hash & pathname (e.g. /admin)
   useEffect(() => {
-    const handleHash = () => {
+    const handleRoute = () => {
+      const pathname = window.location.pathname;
       const hash = window.location.hash.replace('#', '') as PageTab;
+
+      if (pathname === '/admin' || pathname === '/admin/' || hash === 'admin') {
+        setCurrentTab('admin');
+        return;
+      }
+
       const validTabs: PageTab[] = [
         'nuur',
         'khotolbor',
@@ -47,20 +55,41 @@ export default function App() {
         'khel',
         'surgaltyn-irts',
         'zurgiin-san',
-        'kholboo-barikh'
+        'kholboo-barikh',
+        'admin'
       ];
       if (validTabs.includes(hash)) {
         setCurrentTab(hash);
       }
     };
-    handleHash();
-    window.addEventListener('hashchange', handleHash);
-    return () => window.removeEventListener('hashchange', handleHash);
+    handleRoute();
+    window.addEventListener('hashchange', handleRoute);
+    window.addEventListener('popstate', handleRoute);
+    return () => {
+      window.removeEventListener('hashchange', handleRoute);
+      window.removeEventListener('popstate', handleRoute);
+    };
   }, []);
 
   const handleTabChange = (tab: PageTab) => {
     setCurrentTab(tab);
-    window.location.hash = tab;
+    if (tab === 'admin') {
+      try {
+        window.history.pushState(null, '', '/admin');
+      } catch {
+        // ignore in restrictive iframe environments
+      }
+      window.location.hash = 'admin';
+    } else {
+      if (window.location.pathname === '/admin' || window.location.pathname === '/admin/') {
+        try {
+          window.history.pushState(null, '', '/');
+        } catch {
+          // ignore
+        }
+      }
+      window.location.hash = tab;
+    }
     window.scrollTo({ top: 0, behavior: 'smooth' });
     setIsMobileMenuOpen(false);
   };
@@ -69,6 +98,11 @@ export default function App() {
     setHandoutTitle(title);
     setIsHandoutOpen(true);
   };
+
+  // If on /admin route, render dedicated Admin Page
+  if (currentTab === 'admin') {
+    return <AdminPage onBackToApp={() => handleTabChange('nuur')} />;
+  }
 
   return (
     <div className="min-h-screen flex flex-col bg-[#f8f9ff] text-[#0b1c30]">
@@ -88,7 +122,7 @@ export default function App() {
           isMobileOpen={false}
         />
 
-        {/* Main Content Container - with pb-24 on mobile for bottom nav */}
+        {/* Main Content Container - with pb-20 on mobile for bottom nav */}
         <main className="flex-1 min-w-0 flex flex-col bg-[#f8faff] pb-20 lg:pb-0">
           {/* Breadcrumb banner when not on Home */}
           {currentTab !== 'nuur' && (

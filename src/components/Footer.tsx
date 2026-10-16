@@ -82,6 +82,10 @@ export const Footer: React.FC<FooterProps> = ({ onSelectTab }) => {
             <button onClick={() => onSelectTab('kholboo-barikh')} className="hover:text-[#002045] transition-colors font-medium">
               Холбоо барих
             </button>
+            <button onClick={() => onSelectTab('admin')} className="text-slate-400 hover:text-[#002045] transition-colors font-medium flex items-center gap-1">
+              <span className="material-symbols-outlined text-[13px]">lock</span>
+              <span>Админ (/admin)</span>
+            </button>
           </div>
           <span className="text-center md:text-right text-[#74777f]">
             © 2026 Japanese Executive Study Tour. Бүх эрх хуулиар хамгаалагдсан.

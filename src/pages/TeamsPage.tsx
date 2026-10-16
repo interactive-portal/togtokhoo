@@ -1,8 +1,18 @@
-import React, { useState } from 'react';
-import { STUDY_TOUR_TEAMS, TeamGroup } from '../data/teams';
+import React, { useState, useEffect } from 'react';
+import { TeamGroup } from '../data/teams';
+import { getTeamsData } from '../data/dataStore';
 
 export const TeamsPage: React.FC = () => {
-  const [teams, setTeams] = useState<TeamGroup[]>(STUDY_TOUR_TEAMS);
+  const [teams, setTeams] = useState<TeamGroup[]>(getTeamsData);
+
+  useEffect(() => {
+    const handleUpdate = () => {
+      setTeams(getTeamsData());
+    };
+    window.addEventListener('study_tour_data_updated', handleUpdate);
+    return () => window.removeEventListener('study_tour_data_updated', handleUpdate);
+  }, []);
+
   const [activeGroup, setActiveGroup] = useState<string>('all');
   const [searchMember, setSearchMember] = useState('');
 

@@ -1,13 +1,24 @@
-import React, { useState, useMemo } from 'react';
-import { SHOPPING_MALLS, ShoppingMall } from '../data/shopping';
+import React, { useState, useMemo, useEffect } from 'react';
+import { ShoppingMall } from '../data/shopping';
+import { getShoppingData } from '../data/dataStore';
 
 export const ShoppingPage: React.FC = () => {
+  const [malls, setMalls] = useState<ShoppingMall[]>(getShoppingData);
+
+  useEffect(() => {
+    const handleUpdate = () => {
+      setMalls(getShoppingData());
+    };
+    window.addEventListener('study_tour_data_updated', handleUpdate);
+    return () => window.removeEventListener('study_tour_data_updated', handleUpdate);
+  }, []);
+
   const [cityTab, setCityTab] = useState<'all' | 'tokyo' | 'osaka'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
 
   const filteredMalls = useMemo(() => {
-    return SHOPPING_MALLS.filter(mall => {
+    return malls.filter(mall => {
       if (cityTab !== 'all' && mall.city !== cityTab) return false;
       if (categoryFilter !== 'all' && mall.category !== categoryFilter) return false;
       if (searchQuery.trim()) {
@@ -51,7 +62,7 @@ export const ShoppingPage: React.FC = () => {
                 : 'text-[#43474e] hover:text-[#002045]'
             }`}
           >
-            Бүгд ({SHOPPING_MALLS.length})
+            Бүгд ({malls.length})
           </button>
           <button
             onClick={() => setCityTab('tokyo')}
@@ -61,7 +72,7 @@ export const ShoppingPage: React.FC = () => {
                 : 'text-[#43474e] hover:text-[#002045]'
             }`}
           >
-            Токио (6)
+            Токио ({malls.filter(m => m.city === 'tokyo').length})
           </button>
           <button
             onClick={() => setCityTab('osaka')}
@@ -71,7 +82,7 @@ export const ShoppingPage: React.FC = () => {
                 : 'text-[#43474e] hover:text-[#002045]'
             }`}
           >
-            Осака (6)
+            Осака ({malls.filter(m => m.city === 'osaka').length})
           </button>
         </div>
       </div>

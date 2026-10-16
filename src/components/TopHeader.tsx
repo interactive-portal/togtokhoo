@@ -462,12 +462,24 @@ export const TopHeader: React.FC<TopHeaderProps> = ({
                 </div>
               </div>
             </div>
-            <button
-              onClick={() => setShowProfileModal(false)}
-              className="w-full py-2.5 rounded-xl bg-[#002045] text-white font-bold text-xs hover:bg-[#1a365d] transition-colors"
-            >
-              Хаах
-            </button>
+            <div className="flex gap-2 w-full mt-2">
+              <button
+                onClick={() => {
+                  setShowProfileModal(false);
+                  onSelectTab('admin');
+                }}
+                className="flex-1 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition-colors flex items-center justify-center gap-1.5"
+              >
+                <span className="material-symbols-outlined text-[16px]">admin_panel_settings</span>
+                <span>Админ (/admin)</span>
+              </button>
+              <button
+                onClick={() => setShowProfileModal(false)}
+                className="flex-1 py-2.5 rounded-xl bg-[#002045] text-white font-bold text-xs hover:bg-[#1a365d] transition-colors"
+              >
+                Хаах
+              </button>
+            </div>
           </div>
         </div>
       )}

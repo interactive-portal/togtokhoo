@@ -11,7 +11,8 @@ export type PageTab =
   | 'khel'
   | 'surgaltyn-irts'
   | 'zurgiin-san'
-  | 'kholboo-barikh';
+  | 'kholboo-barikh'
+  | 'admin';
 
 interface HeaderProps {
   currentTab: PageTab;

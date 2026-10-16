@@ -1,8 +1,18 @@
-import React, { useState, useMemo } from 'react';
-import { INITIAL_GIFTS, GiftItem } from '../data/gifts';
+import React, { useState, useMemo, useEffect } from 'react';
+import { GiftItem } from '../data/gifts';
+import { getGiftsData, saveGiftsData } from '../data/dataStore';
 
 export const GiftsPage: React.FC = () => {
-  const [gifts, setGifts] = useState<GiftItem[]>(INITIAL_GIFTS);
+  const [gifts, setGifts] = useState<GiftItem[]>(getGiftsData);
+
+  useEffect(() => {
+    const handleUpdate = () => {
+      setGifts(getGiftsData());
+    };
+    window.addEventListener('study_tour_data_updated', handleUpdate);
+    return () => window.removeEventListener('study_tour_data_updated', handleUpdate);
+  }, []);
+
   const [viewMode, setViewMode] = useState<'grid' | 'table'>('grid');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
